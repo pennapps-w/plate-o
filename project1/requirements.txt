@@ -2,3 +2,6 @@ uvicorn
 fastapi
 motor
 pydantic
+aiohttp
+requests
+numpy
