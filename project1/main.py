@@ -51,6 +51,7 @@ class User(BaseModel):
 
     price: int = None
     meal_budget: float = None
+    balance: float = None
 
 
 class UpdateUser(BaseModel):
@@ -59,8 +60,9 @@ class UpdateUser(BaseModel):
     likes: Optional[str] = None
     dislikes: Optional[str] = None
     never: Optional[str] = None
-    price: int = None
-    meal_budget: float = None
+    price: Optional[int] = None
+    meal_budget: Optional[float] = None
+    balance: Optional[float] = None
     model_config = ConfigDict(
         arbitrary_types_allowed=True, json_encoders={ObjectId: str}
     )
