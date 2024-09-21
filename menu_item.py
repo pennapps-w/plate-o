@@ -187,10 +187,10 @@ restaurant_data = {
     'score': 5
 }
 
-api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
-scorer = MenuChooser(user_data, api_key)
-orderinfo = scorer.robust_selection(restaurant_data)
-print("ORDER:")
-printstring = orderinfo[0]
-totalprivce = orderinfo[1]
-print(printstring)
+# api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
+# scorer = MenuChooser(user_data, api_key)
+# orderinfo = scorer.robust_selection(restaurant_data)
+# print("ORDER:")
+# printstring = orderinfo[0]
+# totalprivce = orderinfo[1]
+# print(printstring)
