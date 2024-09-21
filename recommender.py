@@ -22,8 +22,6 @@ def get_restaurants(price_range):
     return filter(lambda x: len(x) <= tmp, tmp3)
 
 
-get_restaurants("$")
-
 def restaurantsToScore(n):
     n["final_score"] = scorer.calculate_final_score(n)
     return n
