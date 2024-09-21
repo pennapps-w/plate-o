@@ -2,8 +2,8 @@ from requests import get, post, put, delete, HTTPError
 from algo import RestaurantScorer
 
 user_root = "https://blobotic-service1--8000.prod1.defang.dev/users/"
-# restaurant_root = "https://blobotic-service1--8000.prod1.defang.dev/restaurants/"
-restaurant_root = "http://127.0.0.1:8000/restaurants"
+restaurant_root = "https://blobotic-service1--8000.prod1.defang.dev/restaurants/"
+# restaurant_root = "http://127.0.0.1:8000/restaurants"
 api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
 scorer = None 
 rejectedRecommendations = 3
