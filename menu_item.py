@@ -134,6 +134,10 @@ class MenuChooser:
         else:
             return self.robust_selection(restaurant, f"The user only has a budget of {self.user_data['budget']['meal_budget']}, so you must select cheaper items. DO NOT GO OVER THE BUDGET. ")
 
+
+# VVVVVV FOR TESTING VVVVVV
+
+
 # Example usage
 user_data = {
     'preferences': {
@@ -156,7 +160,6 @@ restaurant_data = {
     'score': 5
 }
 
-# FOR TESTING
 api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
 # Example usage
 user_data = {
@@ -184,7 +187,6 @@ restaurant_data = {
     'score': 5
 }
 
-# FOR TESTING
 api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
 scorer = MenuChooser(user_data, api_key)
 orderinfo = scorer.robust_selection(restaurant_data)
