@@ -19,7 +19,9 @@ def test_api():
         ],
         "likes": "asian food",
         "dislikes": "tasteless food",
-        "never": "nuts"
+        "never": "nuts",
+        "price point": 1,
+        "max_budget": 15.0
     }
 
     try:
