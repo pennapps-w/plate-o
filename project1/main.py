@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, status, Body
 from fastapi.responses import Response
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.functional_validators import BeforeValidator
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -9,7 +10,18 @@ from typing_extensions import Annotated
 from bson import ObjectId
 from pymongo import ReturnDocument
 
+
 app = FastAPI(title="Food API", summary="stores users preference data for restaurants")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 
 # MongoDB connection
 # MONGODB_URI = os.getenv('MONGODB_URI')
@@ -37,6 +49,9 @@ class User(BaseModel):
     never: str = None
     price: str = None
 
+    price: int = None
+    meal_budget: float = None
+
 
 class UpdateUser(BaseModel):
     name: Optional[str] = None
@@ -44,7 +59,8 @@ class UpdateUser(BaseModel):
     likes: Optional[str] = None
     dislikes: Optional[str] = None
     never: Optional[str] = None
-    price: str = None
+    price: int = None
+    meal_budget: float = None
     model_config = ConfigDict(
         arbitrary_types_allowed=True, json_encoders={ObjectId: str}
     )
