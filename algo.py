@@ -6,9 +6,8 @@ import json
 import re
 
 class RestaurantScorer:
-    def __init__(self, user_data, restaurant_data, api_key):
+    def __init__(self, user_data, api_key):
         self.user_data = user_data
-        self.restaurant_data = restaurant_data
         self.api_key = api_key
         self.vectorizer = TfidfVectorizer()
 
@@ -23,15 +22,15 @@ class RestaurantScorer:
         weighted_ratings = previous_ratings * cosine_similarities[0]
         user_preference_score = np.average(weighted_ratings)
         
-        return user_preference_score
+        return 0 # user_preference_score
 
-    # def calculate_esg_score(self, restaurant):
-    #     environmental_score = restaurant.get('environmental_score', 0)
-    #     social_score = restaurant.get('social_score', 0)
-    #     governance_score = restaurant.get('governance_score', 0)
+    def calculate_esg_score(self, restaurant):
+        # environmental_score = restaurant.get('environmental_score', 0)
+        # social_score = restaurant.get('social_score', 0)
+        # governance_score = restaurant.get('governance_score', 0)
         
-    #     esg_score = (environmental_score + social_score + governance_score) / 3
-    #     return esg_score
+        # esg_score = (environmental_score + social_score + governance_score) / 3
+        return 0 # esg_score
 
     def calculate_llm_score(self, restaurant):
         # Prepare the input for the LLM
@@ -105,19 +104,20 @@ class RestaurantScorer:
         data = {
             "temperature": 0.3,
             "messages": [
-                {"role": "system", "content": "You are an AI assistant that rates restaurants based on user preferences. You take into account the users likes and dislikes compared to the restaurant's description and reviews. You pay attention to whether the restaurant has something the user forbids. Your answer should end with with just one integer from the set (0,1,2,3,4,5,6,7,8,9,10). "},
+                {"role": "system", "content": "You are an AI assistant that rates restaurants based on user preferences. You take into account the users likes and dislikes compared to the restaurant's description and reviews. You pay attention to whether the restaurant has something the user forbids. Be concise. Your answer should contain at most three sentences, and end with with just one integer from the set (0,1,2,3,4,5,6,7,8,9,10). "},
                 {"role": "user", "content": prompt}
             ],
             "model": "meta/llama-3.1-405b-instruct",
             "stream": False,
-            "max_tokens": 10
+            "max_tokens": 100
         }
 
         try:
             response = requests.post("https://proxy.tune.app/chat/completions", headers=headers, json=data)
             response.raise_for_status()
             llm_output = response.json()['choices'][0]['message']['content']
-            int_output = re.search(r'(?:^|.*[^0-9])([0-9]|10)(?![0-9])', llm_output.strip())
+            print(llm_output.strip())
+            int_output = re.findall(r'\d+', llm_output.strip())[-1]
             llm_score = float(int_output) / 10  # Convert to a 0-1 scale
             return llm_score
         except Exception as e:
@@ -134,14 +134,6 @@ class RestaurantScorer:
         
         return final_score
 
-    def score_restaurant(self, restaurant):
-        # Check for hard nos (allergies)
-        for allergy in self.user_data['preferences']['hard_nos']:
-            if allergy.lower() in restaurant['description'].lower() or allergy.lower() in restaurant['menu'].lower():
-                return 0  # Automatic disqualification
-        
-        return self.calculate_final_score(restaurant)
-
 # Usage
 user_data = {
     'previous_restaurants': [
@@ -151,7 +143,7 @@ user_data = {
     'preferences': {
         'likes': 'spicy food, vegetarian options',
         'dislikes': 'overly greasy food',
-        'hard_nos': ['peanuts', 'shellfish']
+        'bans': ['peanuts', 'shellfish']
     }
 }
 
@@ -159,12 +151,13 @@ restaurant_data = {
     'name': 'New Restaurant',
     'description': 'Fusion Asian cuisine with a focus on spicy dishes and vegetarian options',
     'menu': 'Spicy tofu stir-fry, Vegetable tempura, Mango sticky rice',
+    'reviews': ['Best food ever!', 'Only go if you are ok with sticky chairs.', 'Creative fusion cuisine'],
     'environmental_score': 0.8,
     'social_score': 0.7,
     'governance_score': 0.9
 }
 
-api_key = 'YOUR_TUNE_STUDIO_API_KEY'
-scorer = RestaurantScorer(user_data, restaurant_data, api_key)
-final_score = scorer.score_restaurant(restaurant_data)
+api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
+scorer = RestaurantScorer(user_data, api_key)
+final_score = scorer.calculate_final_score(restaurant_data)
 print(f"Final score for {restaurant_data['name']}: {final_score}")
