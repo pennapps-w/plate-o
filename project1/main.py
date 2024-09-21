@@ -9,7 +9,7 @@ from typing import Optional, List
 from typing_extensions import Annotated
 from bson import ObjectId
 from pymongo import ReturnDocument
-
+from recommender import Recommender
 
 app = FastAPI(title="Food API", summary="stores users preference data for restaurants")
 
@@ -192,6 +192,17 @@ async def create_restaurant(restaurant: Restaurant = Body(...)):
 )
 async def list_restaurants():
     return RestaurantCollection(restaurants=await rest_collection.find().to_list(1000))
+
+
+@app.get(
+    "/get_recommendation/{id}", response_description="Get a restaurant recommendation"
+)
+async def get_recommendation(id: str):
+    recommender = Recommender(id)
+    recommendation = recommender.get_recommendation()
+    if recommendation:
+        return recommendation
+    raise HTTPException(status_code=404, detail="No recommendation found")
 
 
 # @app.put(
