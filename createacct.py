@@ -1,11 +1,11 @@
 import requests
 import json
 
-def create_acct(**kwargs):
-    # Replace with your API key
-    API_KEY = "e6b7c879373f760ae3560779d5e8e7b3"
-    BASE_URL = "http://api.nessieisreal.com"
+# Replace with your API key
+API_KEY = "e6b7c879373f760ae3560779d5e8e7b3"
+BASE_URL = "http://api.nessieisreal.com"
 
+def create_acct(**kwargs):
     # Endpoint for creating a customer
     url = f"{BASE_URL}/customers?key={API_KEY}"
 
@@ -34,7 +34,55 @@ def create_acct(**kwargs):
         print(f"Failed to create customer. Status Code: {response.status_code}")
         print("Response JSON:", response.json())
 
-def add_expenses
+def add_expenses(**kwargs):
+    response = requests.get(BASE_URL + "/customers")
+    customer = response.json()[0]
+    cid = customer["_id"]
+
+    response = requests.get(BASE_URL + "/accounts")
+    account = response.json()[0]
+    aid = account["_id"]
+
+
+    response = requests.get(BASE_URL + "/customers/" + cid + "/bills")
+    bills = response.json()
+
+    # sumBills = sum(i["amount"])
+
+    response = requests.get(BASE_URL + "/accounts/" + aid + "/purchases")
+    purchases = response.json()
+
+    sumPurchases = sum(i["amount"] for i in purchases)
+
+    return sumPurchases
+
+def add_income():
+    response = requests.get(BASE_URL + "/accounts")
+    customer = response.json()[0]
+    cid = customer["_id"]
+    response = requests.get(BASE_URL + "/accounts/" + cid + "/deposits")
+    deposits = response.json()    
+
+    # sumDeposits = sum(i[""])
+    return 0
+
+def get_budget():
+    expenses = add_expenses() 
+    income = add_income()
+
+    response = requests.get(BASE_URL + "/accounts")
+    customer = response.json()[0]
+    # cid = customer["_id"]
+    # response = requests.get(BASE_URL + "/accounts/" + cid + "/bills")
+    # bills = response.json()
+    balance = customer["balance"]
+
+    bal = balance + income - expenses 
+
+    numMeals = min(bal//20, 7)
+
+    return (numMeals, round(bal/numMeals, 2))
+
 
 
 
