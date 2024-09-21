@@ -86,54 +86,6 @@ class Recommender:
             logging.error(f"An error occurred: {err}")
         return None
 
-    # def get_recommendation(self):
-    #     try:
-    #         response = get(user_root + self.user_id)
-    #         response.raise_for_status()
-    #         user_data = response.json()
-    #         print(f"user_data {user_data}")
-
-    #         user_preferences = {
-    #             "preferences": {
-    #                 "likes": user_data.get("likes", []),
-    #                 "dislikes": user_data.get("dislikes", []),
-    #                 "never": user_data.get("never", []),
-    #             },
-    #             "budget": {
-    #                 "max_price_point": user_data.get("price", 3),
-    #                 "meal_budget": user_data.get("meal_budget", 0),
-    #             },
-    #         }
-
-    #         print(f"user_preferences {user_preferences}")
-
-    #         price_range_restaurants = self.get_restaurants(user_data["price"])
-    #         # price_range_restaurants = self.get_restaurants(user_preferences["price"])
-    #         # print(f"price_range_restaurants: {price_range_restaurants}")
-
-    #         print("were before our if statement")
-    #         if self.rejectedRecommendations >= 3:
-    #             self.scorer = RestaurantScorer(user_preferences, api_key)
-    #             self.rejectedRecommendations = 0
-
-    #             restaurants_scored = list(
-    #                 map(self.restaurantsToScore, price_range_restaurants)
-    #             )
-
-    #             sortedList = sorted(
-    #                 restaurants_scored, key=lambda d: d["final_score"], reverse=True
-    #             )
-
-    #         # print(f"Sorted Restaurant List: {sortedList}")
-    #         self.restaurant = sortedList[self.rejectedRecommendations]
-
-    #         return self.restaurant
-    #     except HTTPError as http_err:
-    #         logging.error(f"HTTP error occurred: {http_err}")
-    #     except Exception as err:
-    #         logging.error(f"An error occurred: {err}")
-    #     return None
-
     async def rejected_recommendation(self, reason):
         self.rejectedRecommendations += 1
         async with ClientSession() as session:
