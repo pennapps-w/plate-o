@@ -31,7 +31,7 @@ export function FoodSwiper() {
   const fetchRecommendation = async () => {
     try {
       const response = await fetch(
-        "https://blobotic-service1--8000.prod1.defang.dev/get_recommendation/66ee6b3a7aa3130e68418c7d"
+        "http://127.0.0.1:8000/get_recommendation/66ee6b3a7aa3130e68418c7d"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch recommendation");

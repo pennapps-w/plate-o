@@ -3,6 +3,7 @@ import requests
 import json
 import re
 import random
+import aiohttp
 
 
 class RestaurantScorer:
@@ -10,7 +11,7 @@ class RestaurantScorer:
         self.user_data = user_data
         self.api_key = api_key
 
-    def calculate_llm_score(self, restaurant):
+    async def calculate_llm_score(self, restaurant):
         # Prepare the input for the LLM
         prompt = f"""
         Based on the information given, rate how well the given restaurant matches the user's preferences on a scale of 0 to 100, where 0 is a complete mismatch and 100 is a perfect match. If the restaurant description has something the user forbids, give a 0. 
@@ -94,21 +95,24 @@ class RestaurantScorer:
         }
 
         try:
-            response = requests.post(
-                "https://proxy.tune.app/chat/completions", headers=headers, json=data
-            )
-            response.raise_for_status()
-            llm_output = response.json()["choices"][0]["message"]["content"]
-            print(llm_output.strip())
-            int_output = re.findall(r"\d+", llm_output.strip())[-1]
-            llm_score = float(int_output) / 10  # Convert to a 0-10 scale
-            return llm_score
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    "https://proxy.tune.app/chat/completions",
+                    headers=headers,
+                    json=data,
+                ) as response:
+                    response_data = await response.json()
+                    llm_output = response_data["choices"][0]["message"]["content"]
+                    print(llm_output.strip())
+                    int_output = re.findall(r"\d+", llm_output.strip())[-1]
+                    llm_score = float(int_output) / 10  # Convert to a 0-10 scale
+                    return llm_score
         except Exception as e:
             print(f"Error in LLM scoring: {e}")
             return 0.5  # Default to neutral score in case of error
 
-    def calculate_final_score(self, restaurant):
-        llm_score = self.calculate_llm_score(restaurant)
+    async def calculate_final_score(self, restaurant):
+        llm_score = await self.calculate_llm_score(restaurant)
 
         return llm_score
 
@@ -136,8 +140,10 @@ restaurant_data = {
     "score": 5,
 }
 
+
 # FOR TESTING
-api_key = "sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs"
-scorer = RestaurantScorer(user_data, api_key)
-final_score = scorer.calculate_final_score(restaurant_data)
-print(f"Final score for {restaurant_data['name']}: {final_score}")
+async def test_scorer():
+    api_key = "sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs"
+    scorer = RestaurantScorer(user_data, api_key)
+    final_score = await scorer.calculate_final_score(restaurant_data)
+    print(f"Final score for {restaurant_data['name']}: {final_score}")
