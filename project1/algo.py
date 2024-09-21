@@ -123,7 +123,7 @@ class RestaurantScorer:
             return llm_score
         except Exception as e:
             print(f"Error in LLM scoring: {e}")
-            return 0.5  # Default to neutral score in case of error
+            return 5.0  # Default to neutral score in case of error
 
     def calculate_final_score(self, restaurant):
         llm_score = self.calculate_llm_score(restaurant)
