@@ -45,7 +45,7 @@ export function DeliverySuccessComponent() {
           className="text-3xl font-bold"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
+          transition={{ delay: 0.7, duration: 0.7 }}
         >
           Order Placed Successfully
         </motion.h1>
@@ -54,12 +54,12 @@ export function DeliverySuccessComponent() {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: showContent ? 1 : 0, scale: showContent ? 1 : 0.9 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.7 }}
         className="w-full max-w-md mx-auto p-6 bg-white text-black rounded-lg shadow-lg"
       >
         <h2 className="text-2xl font-bold mb-4">Order Details</h2>
         <p className="mb-2">Your order has been successfully placed and is being prepared.</p>
-        <p className="mb-4">Estimated delivery time: 30-45 minutes</p>
+        <p className="mb-4"><b>Estimated delivery time:</b> 30-45 minutes</p>
         <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors">
           Track Order
         </button>
