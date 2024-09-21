@@ -25,52 +25,53 @@ rest_collection = db.plato_restaurants
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
-
 # user stuff
+
 
 class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str = None
     restaurants: list[object] = []
-    likes: str = None 
-    dislikes: str = None 
+    likes: str = None
+    dislikes: str = None
     never: str = None
     price: str = None
-    
+
+
 class UpdateUser(BaseModel):
     name: Optional[str] = None
     restaurants: Optional[list[object]] = None
-    likes: Optional[str] = None 
-    dislikes: Optional[str] = None 
+    likes: Optional[str] = None
+    dislikes: Optional[str] = None
     never: Optional[str] = None
     price: str = None
     model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-        json_encoders={ObjectId: str}
+        arbitrary_types_allowed=True, json_encoders={ObjectId: str}
     )
+
 
 class UserCollection(BaseModel):
     users: List[User]
 
+
 @app.post(
-    "/users/", 
+    "/users/",
     response_description="Add new user",
     response_model=User,
     status_code=status.HTTP_201_CREATED,
-    response_model_by_alias=False
+    response_model_by_alias=False,
 )
 async def create_user(user: User = Body(...)):
     new_user = await collection.insert_one(
         user.model_dump(by_alias=True, exclude=["id"])
     )
-    created_user = await collection.find_one(
-        {"_id": new_user.inserted_id}
-    )
+    created_user = await collection.find_one({"_id": new_user.inserted_id})
     return created_user
     # result = await collection.insert_one(user.dict())
     # if result.inserted_id:
     #     return user
     # raise HTTPException(status_code=400, detail="Item could not be created")
+
 
 @app.get(
     "/users/",
@@ -84,7 +85,7 @@ async def list_users():
 
 @app.get(
     "/users/{id}",
-    response_description="Get a single user", 
+    response_description="Get a single user",
     response_model=User,
     response_model_by_alias=False,
 )
@@ -99,17 +100,16 @@ async def read_user(id: str):
 
     raise HTTPException(status_code=404, detail=f"user {id} not found")
 
+
 @app.put(
     "/users/{id}",
     response_description="Update a user",
     response_model=User,
-    response_model_by_alias=False
+    response_model_by_alias=False,
 )
 async def update_user(id: str, user: UpdateUser = Body(...)):
     print("updating user.....")
-    user = {
-        k: v for k, v in user.model_dump(by_alias=True).items() if v is not None
-    }
+    user = {k: v for k, v in user.model_dump(by_alias=True).items() if v is not None}
 
     if len(user) >= 1:
         update_result = await collection.find_one_and_update(
@@ -139,23 +139,24 @@ async def delete_user(id: str):
     raise HTTPException(status_code=404, detail=f"user {id} not found")
 
 
-
 # restaurant stuff
+
 
 class Restaurant(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     data: object = None
-    
+
 
 class RestaurantCollection(BaseModel):
     restaurants: List[Restaurant]
 
+
 @app.post(
-    "/restaurants/", 
+    "/restaurants/",
     response_description="Add new restaurant",
     response_model=Restaurant,
     status_code=status.HTTP_201_CREATED,
-    response_model_by_alias=False
+    response_model_by_alias=False,
 )
 async def create_restaurant(restaurant: Restaurant = Body(...)):
     new_restaurant = await rest_collection.insert_one(
@@ -166,6 +167,7 @@ async def create_restaurant(restaurant: Restaurant = Body(...)):
     )
     return created_restaurant
 
+
 @app.get(
     "/restaurants/",
     response_description="List all users",
@@ -174,3 +176,37 @@ async def create_restaurant(restaurant: Restaurant = Body(...)):
 )
 async def list_restaurants():
     return RestaurantCollection(restaurants=await rest_collection.find().to_list(1000))
+
+
+# @app.put(
+#     "/update_user_preferences/{id}",
+#     response_description="Update user preferences",
+#     response_model=User,
+#     response_model_by_alias=False,
+# )
+# async def update_user_preferences(
+#     id: str,
+#     likes: Optional[str] = None,
+#     dislikes: Optional[str] = None,
+#     never: Optional[str] = None,
+# ):
+#     update_data = {}
+#     if likes is not None:
+#         update_data["likes"] = likes
+#     if dislikes is not None:
+#         update_data["dislikes"] = dislikes
+#     if never is not None:
+#         update_data["never"] = never
+
+#     if update_data:
+#         update_result = await collection.find_one_and_update(
+#             {"_id": ObjectId(id)},
+#             {"$set": update_data},
+#             return_document=ReturnDocument.AFTER,
+#         )
+#         if update_result is not None:
+#             return update_result
+#         else:
+#             raise HTTPException(status_code=404, detail=f"User {id} not found")
+
+#     raise HTTPException(status_code=400, detail="No update data provided")
