@@ -199,7 +199,7 @@ async def list_restaurants():
 )
 async def get_recommendation(id: str):
     recommender = Recommender(id)
-    recommendation = recommender.get_recommendation()
+    recommendation = await recommender.get_recommendation()
     if recommendation:
         return recommendation
     raise HTTPException(status_code=404, detail="No recommendation found")
