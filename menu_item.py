@@ -122,7 +122,7 @@ class MenuChooser:
 
     def robust_selection(self, restaurant, additional_notes = ""):
     ### RETURNS A PAIR (ORDER PRINTSTRING, PRICE) WITHIN BUDGET
-        items = scorer.select_item(restaurant_data, additional_notes)
+        items = self.select_item(restaurant_data, additional_notes)
         print(items)
         printstring = f"Final order for {restaurant_data['name']}:"
         totalprice = 0
