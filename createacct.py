@@ -4,6 +4,8 @@ import json
 # Replace with your API key
 API_KEY = "e6b7c879373f760ae3560779d5e8e7b3"
 BASE_URL = "http://api.nessieisreal.com"
+USER_URL = "https://blobotic-service1--8000.prod1.defang.dev/users/"
+
 
 def create_acct(**kwargs):
     # Endpoint for creating a customer
@@ -34,7 +36,7 @@ def create_acct(**kwargs):
         print(f"Failed to create customer. Status Code: {response.status_code}")
         print("Response JSON:", response.json())
 
-def add_expenses(**kwargs):
+def add_expenses(billList, purchaseList):
     response = requests.get(BASE_URL + "/customers")
     customer = response.json()[0]
     cid = customer["_id"]
@@ -43,18 +45,47 @@ def add_expenses(**kwargs):
     account = response.json()[0]
     aid = account["_id"]
 
+    response = requests.get(USER_URL)
+    users = response.json()[0]
+    uid = users["id"]
+    ubal = users["balance"]
 
-    response = requests.get(BASE_URL + "/customers/" + cid + "/bills")
-    bills = response.json()
+    for i in billList:
+        response = requests.post(BASE_URL + "/accounts/" + aid + "/bills", json={
+            "status": "pending",
+            "payee": i["payee"],
+            "nickname": i["nickname"],
+            "payment_date": "2024-09-21",
+            "recurring_date": 30
+        })
+    
+    for i in purchaseList:
+        response = requests.post(BASE_URL + "/accounts/" + aid + "/purchases", json={
+            "merchant_id": i["merchant_id"],
+            "medium": "balance",
+            "purchase_date": i["purchase_date"],
+            "amount": i["amount"],
+            "status": "pending",
+            "description": i["description"]
+        })
+
+        ubal -= i["amount"]
+    
+    numMeals = min(ubal//20, 7)
+    response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
+        
+
+    # response = requests.get(BASE_URL + "/customers/" + cid + "/bills")
+    # bills = response.json()
 
     # sumBills = sum(i["amount"])
 
-    response = requests.get(BASE_URL + "/accounts/" + aid + "/purchases")
-    purchases = response.json()
+    # response = requests.get(BASE_URL + "/accounts/" + aid + "/purchases")
+    # purchases = response.json()
 
-    sumPurchases = sum(i["amount"] for i in purchases)
+    # sumPurchases = sum(i["amount"] for i in purchases)
 
-    return sumPurchases
+    # return sumPurchases
 
 def add_income():
     response = requests.get(BASE_URL + "/accounts")
@@ -77,7 +108,7 @@ def get_budget():
     # bills = response.json()
     balance = customer["balance"]
 
-    bal = balance + income - expenses 
+    bal = (balance + income - expenses) * 0.2
 
     numMeals = min(bal//20, 7)
 
