@@ -4,7 +4,7 @@ import json
 
 jd = None 
 
-with open("../merged_restaurant_data.json") as f:
+with open("merged_restaurant_data.json") as f:
     jd = json.load(f)
 
 
@@ -18,6 +18,7 @@ def test_api():
 
     try:
         # Insert a user
+        print(len(jd))
         for i in jd:
             print(i)
             response = post(user_root, json={"data": i})

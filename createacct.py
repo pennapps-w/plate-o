@@ -63,7 +63,7 @@ def add_expenses(purchaseList):
 
         ubal -= i["amount"]
     
-    numMeals = min(ubal//20, 7)
+    numMeals = min(ubal//20, 30)
     response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
         
 def add_income(billList, incomeList):
@@ -102,11 +102,10 @@ def add_income(billList, incomeList):
     else:
         ubal += income * 0.2
 
-    numMeals = min(ubal//20, 7)    
+    numMeals = min(ubal//20, 30)    
     response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
 
     # sumDeposits = sum(i[""])
-    return 0
 
 # def get_budget():
 #     expenses = add_expenses() 
