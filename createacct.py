@@ -36,7 +36,7 @@ def create_acct(**kwargs):
         print(f"Failed to create customer. Status Code: {response.status_code}")
         print("Response JSON:", response.json())
 
-def add_expenses(billList, purchaseList):
+def add_expenses(purchaseList):
     response = requests.get(BASE_URL + "/customers")
     customer = response.json()[0]
     cid = customer["_id"]
@@ -50,15 +50,7 @@ def add_expenses(billList, purchaseList):
     uid = users["id"]
     ubal = users["balance"]
 
-    for i in billList:
-        response = requests.post(BASE_URL + "/accounts/" + aid + "/bills", json={
-            "status": "pending",
-            "payee": i["payee"],
-            "nickname": i["nickname"],
-            "payment_date": "2024-09-21",
-            "recurring_date": 30
-        })
-    
+
     for i in purchaseList:
         response = requests.post(BASE_URL + "/accounts/" + aid + "/purchases", json={
             "merchant_id": i["merchant_id"],
@@ -74,45 +66,64 @@ def add_expenses(billList, purchaseList):
     numMeals = min(ubal//20, 7)
     response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
         
-
-    # response = requests.get(BASE_URL + "/customers/" + cid + "/bills")
-    # bills = response.json()
-
-    # sumBills = sum(i["amount"])
-
-    # response = requests.get(BASE_URL + "/accounts/" + aid + "/purchases")
-    # purchases = response.json()
-
-    # sumPurchases = sum(i["amount"] for i in purchases)
-
-    # return sumPurchases
-
-def add_income():
+def add_income(billList, incomeList):
     response = requests.get(BASE_URL + "/accounts")
     customer = response.json()[0]
-    cid = customer["_id"]
-    response = requests.get(BASE_URL + "/accounts/" + cid + "/deposits")
-    deposits = response.json()    
+    aid = customer["_id"]
+
+    response = requests.get(USER_URL)
+    users = response.json()[0]
+    uid = users["id"]
+    ubal = users["balance"]
+
+    income = 0 
+
+    for i in billList:
+        response = requests.post(BASE_URL + "/accounts/" + aid + "/bills", json={
+            "status": "pending",
+            "payee": i["payee"],
+            "nickname": i["nickname"],
+            "payment_date": "2024-09-21",
+            "recurring_date": 30
+        })
+        income -= i["amount"]
+
+    for i in incomeList:
+        response = requests.post(BASE_URL + "/accounts/" + aid + "/deposits", json={
+            "medium": "balance",
+            "transaction_date": "2024-09-21",
+            "status": "pending",
+            "description": i["description"]
+        })
+        income += i
+    
+    if income <= 0:
+        ubal += income 
+    else:
+        ubal += income * 0.2
+
+    numMeals = min(ubal//20, 7)    
+    response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
 
     # sumDeposits = sum(i[""])
     return 0
 
-def get_budget():
-    expenses = add_expenses() 
-    income = add_income()
+# def get_budget():
+#     expenses = add_expenses() 
+#     income = add_income()
 
-    response = requests.get(BASE_URL + "/accounts")
-    customer = response.json()[0]
-    # cid = customer["_id"]
-    # response = requests.get(BASE_URL + "/accounts/" + cid + "/bills")
-    # bills = response.json()
-    balance = customer["balance"]
+#     response = requests.get(BASE_URL + "/accounts")
+#     customer = response.json()[0]
+#     # cid = customer["_id"]
+#     # response = requests.get(BASE_URL + "/accounts/" + cid + "/bills")
+#     # bills = response.json()
+#     balance = customer["balance"]
 
-    bal = (balance + income - expenses) * 0.2
+#     bal = (balance + income - expenses) * 0.2
 
-    numMeals = min(bal//20, 7)
+#     numMeals = min(bal//20, 7)
 
-    return (numMeals, round(bal/numMeals, 2))
+#     return (numMeals, round(bal/numMeals, 2))
 
 
 
