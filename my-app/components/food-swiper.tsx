@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   motion,
   AnimatePresence,
@@ -10,84 +9,59 @@ import {
 } from "framer-motion";
 import { X, Heart, DollarSign, Leaf } from "lucide-react";
 
-const restaurants = [
-  {
-    name: "Bella Italia",
-    dish: "Margherita Pizza",
-    image: "/placeholder.svg?height=300&width=300",
-    esgScore: 7.5,
-    price: 2,
-    summary:
-      "Authentic Italian pizzeria with a cozy atmosphere and wood-fired oven.",
-  },
-  {
-    name: "Sushi Haven",
-    dish: "Dragon Roll",
-    image: "/placeholder.svg?height=300&width=300",
-    esgScore: 8.2,
-    price: 3,
-    summary:
-      "Fresh, sustainable sushi with creative fusion rolls and traditional nigiri.",
-  },
-  {
-    name: "Burger Joint",
-    dish: "Classic Cheeseburger",
-    image: "/placeholder.svg?height=300&width=300",
-    esgScore: 6.8,
-    price: 2,
-    summary:
-      "Juicy, locally-sourced beef burgers with a variety of toppings and house-made sauces.",
-  },
-  {
-    name: "Taco Town",
-    dish: "Carne Asada Tacos",
-    image: "/placeholder.svg?height=300&width=300",
-    esgScore: 7.9,
-    price: 1,
-    summary:
-      "Authentic street-style tacos with a range of fillings and homemade salsas.",
-  },
-];
+interface Restaurant {
+  name: string;
+  dish: string;
+  image: string;
+  esgScore: number;
+  price: number;
+  summary: string;
+}
 
 export function FoodSwiper() {
-  const router = useRouter();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(
+    null
+  );
   const [direction, setDirection] = useState<"left" | "right" | null>(null);
 
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-30, 30]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
 
-  const nextRestaurant = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % restaurants.length);
+  const fetchRecommendation = async () => {
+    try {
+      const response = await fetch(
+        "https://blobotic-service1--8000.prod1.defang.dev/get_recommendation/66ee6b3a7aa3130e68418c7d"
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch recommendation");
+      }
+      const data = await response.json();
+      setCurrentRestaurant(data);
+    } catch (error) {
+      console.error("Error fetching recommendation:", error);
+    }
   };
 
+  useEffect(() => {
+    fetchRecommendation();
+  }, []);
+
   const handleSwipe = (swipeDirection: "left" | "right") => {
-    if (swipeDirection === "right") {
-      router.push("/success");
-    } else {
-      setDirection(swipeDirection);
+    setDirection(swipeDirection);
+    if (swipeDirection === "left") {
+      fetchRecommendation();
     }
   };
 
   const handleDragEnd = (event: any, info: any) => {
     const swipeThreshold = 100;
     if (info.offset.x > swipeThreshold) {
-      router.push("/success");
+      handleSwipe("right");
     } else if (info.offset.x < -swipeThreshold) {
       handleSwipe("left");
     }
   };
-
-  useEffect(() => {
-    if (direction) {
-      const timer = setTimeout(() => {
-        nextRestaurant();
-        setDirection(null);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [direction]);
 
   const renderPriceIcons = (price: number) => {
     return Array(3)
@@ -102,12 +76,16 @@ export function FoodSwiper() {
       ));
   };
 
+  if (!currentRestaurant) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-200 to-red-300 p-4">
       <div className="w-full max-w-sm">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentIndex}
+            key={currentRestaurant.name}
             className="bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-yellow-400"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
@@ -120,17 +98,17 @@ export function FoodSwiper() {
           >
             <div className="relative h-48">
               <img
-                src={restaurants[currentIndex].image}
-                alt={restaurants[currentIndex].name}
+                src={currentRestaurant.image}
+                alt={currentRestaurant.name}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="p-4">
               <h1 className="text-3xl font-bold mb-1 text-orange-600">
-                {restaurants[currentIndex].name}
+                {currentRestaurant.name}
               </h1>
               <h2 className="text-xl text-gray-700 mb-3">
-                {restaurants[currentIndex].dish}
+                {currentRestaurant.dish}
               </h2>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -140,18 +118,18 @@ export function FoodSwiper() {
                   <div className="flex items-center">
                     <Leaf className="w-5 h-5 text-green-500 mr-1" />
                     <span className="text-lg font-bold">
-                      {restaurants[currentIndex].esgScore.toFixed(1)}
+                      {currentRestaurant.esgScore.toFixed(1)}
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 font-semibold">Price:</span>
                   <div className="flex">
-                    {renderPriceIcons(restaurants[currentIndex].price)}
+                    {renderPriceIcons(currentRestaurant.price)}
                   </div>
                 </div>
                 <p className="text-gray-800 text-sm mt-2">
-                  {restaurants[currentIndex].summary}
+                  {currentRestaurant.summary}
                 </p>
               </div>
             </div>
@@ -165,7 +143,7 @@ export function FoodSwiper() {
             <X className="w-8 h-8 text-white" />
           </button>
           <button
-            onClick={() => router.push("/success")}
+            onClick={() => handleSwipe("right")}
             className="bg-green-500 rounded-full p-4 shadow-lg transition-transform hover:scale-110"
           >
             <Heart className="w-8 h-8 text-white" />

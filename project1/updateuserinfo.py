@@ -1,9 +1,11 @@
 import requests
 import json
 
+
 class Updater:
     def __init__(self, api_key):
         self.api_key = api_key
+
     def update_bad(self, user_data, restaurant_data, reason):
         prompt = f"""
         Given the information about the user and the restaurant, print out a new dislikes string for the user. The user's previous dislikes should be a subset of this new string. You do not necessarily need to add anything, for example if the user's reason is "I don't feel like it today". However, if they cite some specific dislike in their reason, add that to the dislikes string.
@@ -61,48 +63,52 @@ class Updater:
         data = {
             "temperature": 0.3,
             "messages": [
-                {"role": "system", "content": "You are an AI assistant that needs to update the string that tracks the user's dislikes. You will be given their current dislikes, as well as a restaurant and the restaurant description and the user's stated reason for disliking the restaurant. You will then return just the user's dislikes. Do not print any thinking. Your response will become the user's new dislikes string. "},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are an AI assistant that needs to update the string that tracks the user's dislikes. You will be given their current dislikes, as well as a restaurant and the restaurant description and the user's stated reason for disliking the restaurant. You will then return just the user's dislikes. Do not print any thinking. Your response will become the user's new dislikes string. ",
+                },
+                {"role": "user", "content": prompt},
             ],
             "model": "meta/llama-3.1-405b-instruct",
             "stream": False,
-            "max_tokens": 150
+            "max_tokens": 150,
         }
 
         try:
-            response = requests.post("https://proxy.tune.app/chat/completions", headers=headers, json=data)
+            response = requests.post(
+                "https://proxy.tune.app/chat/completions", headers=headers, json=data
+            )
             response.raise_for_status()
-            llm_output = response.json()['choices'][0]['message']['content']
+            llm_output = response.json()["choices"][0]["message"]["content"]
             print(llm_output.strip())
             return llm_output.strip()
         except Exception as e:
             print(f"Error in LLM call: {e}")
-            return user_data['preferences']['dislikes']
-
+            return user_data["preferences"]["dislikes"]
 
     def update_good(self, user_data, restaurant_data):
         # Extract current likes and restaurant descriptors
-        current_likes = user_data['preferences']['likes']
-        restaurant_descriptors = restaurant_data['description'].lower().split(', ')
-        
+        current_likes = user_data["preferences"]["likes"]
+        restaurant_descriptors = restaurant_data["description"].lower().split(", ")
+
         # Convert current likes into a set for easy checking
-        current_likes_set = set(current_likes.split(', ')) if current_likes else set()
+        current_likes_set = set(current_likes.split(", ")) if current_likes else set()
 
         # Add any new descriptor from the restaurant that isn't already in the current likes
         new_likes = current_likes_set.union(restaurant_descriptors)
-        
+
         # Return the updated likes as a string, sorted for consistency
-        updated_likes = ', '.join(sorted(new_likes))
-        
+        updated_likes = ", ".join(sorted(new_likes))
+
         return updated_likes
-    
+
 
 # myupdater = Updater('API KEY')
 # user_data['preferences']['dislikes'] = myupdater.update_bad({
 #     'preferences': {
 #         'likes': 'spicy food',
 #         'dislikes': 'overly greasy food',
-#         'bans': 'peanuts, shellfish'
+#         'never': 'peanuts, shellfish'
 #     },
 #     'budget': {
 #         'max_price_point': 2,

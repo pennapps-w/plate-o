@@ -4,6 +4,7 @@ import json
 import re
 import random
 
+
 class RestaurantScorer:
     def __init__(self, user_data, api_key):
         self.user_data = user_data
@@ -68,7 +69,7 @@ class RestaurantScorer:
 
         User likes: {self.user_data['preferences']['likes']}
         User dislikes: {self.user_data['preferences']['dislikes']}
-        User forbids: {self.user_data['preferences']['bans']}
+        User forbids: {self.user_data['preferences']['never']}
         Restaurant description: {restaurant['description']}
         Sampled Reviews: {random.sample(restaurant['reviews'],3)}
         """
@@ -81,20 +82,25 @@ class RestaurantScorer:
         data = {
             "temperature": 0.3,
             "messages": [
-                {"role": "system", "content": "You are an AI assistant that rates restaurants based on user preferences. You take into account the users likes and dislikes compared to the restaurant's description and reviews. You pay attention to whether the restaurant has something the user forbids. Be concise. Your answer should contain at most three sentences, and end with with just one integer from 0 to 100. "},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are an AI assistant that rates restaurants based on user preferences. You take into account the users likes and dislikes compared to the restaurant's description and reviews. You pay attention to whether the restaurant has something the user forbids. Be concise. Your answer should contain at most three sentences, and end with with just one integer from 0 to 100. ",
+                },
+                {"role": "user", "content": prompt},
             ],
             "model": "meta/llama-3.1-405b-instruct",
             "stream": False,
-            "max_tokens": 100
+            "max_tokens": 100,
         }
 
         try:
-            response = requests.post("https://proxy.tune.app/chat/completions", headers=headers, json=data)
+            response = requests.post(
+                "https://proxy.tune.app/chat/completions", headers=headers, json=data
+            )
             response.raise_for_status()
-            llm_output = response.json()['choices'][0]['message']['content']
+            llm_output = response.json()["choices"][0]["message"]["content"]
             print(llm_output.strip())
-            int_output = re.findall(r'\d+', llm_output.strip())[-1]
+            int_output = re.findall(r"\d+", llm_output.strip())[-1]
             llm_score = float(int_output) / 10  # Convert to a 0-10 scale
             return llm_score
         except Exception as e:
@@ -103,33 +109,35 @@ class RestaurantScorer:
 
     def calculate_final_score(self, restaurant):
         llm_score = self.calculate_llm_score(restaurant)
-        
+
         return llm_score
+
 
 # Example usage
 user_data = {
-    'preferences': {
-        'likes': 'spicy food, vegetarian options',
-        'dislikes': 'overly greasy food',
-        'bans': 'peanuts, shellfish'
+    "preferences": {
+        "likes": "spicy food, vegetarian options",
+        "dislikes": "overly greasy food",
+        "never": "peanuts, shellfish",
     },
-    'budget': {
-        'max_price_point': 2,
-        'meal_budget': 15.00
-    }
+    "budget": {"max_price_point": 2, "meal_budget": 15.00},
 }
 
 restaurant_data = {
-    'name': 'New Restaurant',
-    'description': 'Fusion Asian cuisine with a focus on spicy dishes and vegetarian options',
-    'menu': ['Spicy tofu stir-fry, Vegetable tempura, Mango sticky rice'],
-    'reviews': ['Best food ever!', 'Only go if you are ok with sticky chairs.', 'Creative fusion cuisine'],
-    'price point': '$',
-    'score': 5
+    "name": "New Restaurant",
+    "description": "Fusion Asian cuisine with a focus on spicy dishes and vegetarian options",
+    "menu": ["Spicy tofu stir-fry, Vegetable tempura, Mango sticky rice"],
+    "reviews": [
+        "Best food ever!",
+        "Only go if you are ok with sticky chairs.",
+        "Creative fusion cuisine",
+    ],
+    "price point": "$",
+    "score": 5,
 }
 
 # FOR TESTING
-api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
+api_key = "sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs"
 scorer = RestaurantScorer(user_data, api_key)
 final_score = scorer.calculate_final_score(restaurant_data)
 print(f"Final score for {restaurant_data['name']}: {final_score}")
