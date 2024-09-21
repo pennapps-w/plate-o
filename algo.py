@@ -95,7 +95,7 @@ class RestaurantScorer:
             llm_output = response.json()['choices'][0]['message']['content']
             print(llm_output.strip())
             int_output = re.findall(r'\d+', llm_output.strip())[-1]
-            llm_score = float(int_output) / 10  # Convert to a 0-1 scale
+            llm_score = float(int_output) / 10  # Convert to a 0-10 scale
             return llm_score
         except Exception as e:
             print(f"Error in LLM scoring: {e}")
@@ -111,7 +111,7 @@ user_data = {
     'preferences': {
         'likes': 'spicy food, vegetarian options',
         'dislikes': 'overly greasy food',
-        'bans': ['peanuts', 'shellfish']
+        'bans': 'peanuts, shellfish'
     },
     'budget': {
         'max_price_point': 2,
@@ -122,11 +122,13 @@ user_data = {
 restaurant_data = {
     'name': 'New Restaurant',
     'description': 'Fusion Asian cuisine with a focus on spicy dishes and vegetarian options',
-    'menu': 'Spicy tofu stir-fry, Vegetable tempura, Mango sticky rice',
+    'menu': ['Spicy tofu stir-fry, Vegetable tempura, Mango sticky rice'],
     'reviews': ['Best food ever!', 'Only go if you are ok with sticky chairs.', 'Creative fusion cuisine'],
-    'price point': '$'
+    'price point': '$',
+    'score': 5
 }
 
+# FOR TESTING
 api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
 scorer = RestaurantScorer(user_data, api_key)
 final_score = scorer.calculate_final_score(restaurant_data)

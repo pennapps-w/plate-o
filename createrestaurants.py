@@ -26,7 +26,6 @@ menus_df = pd.read_csv('restaurant-menus.csv')
 print(f"Loaded {len(menus_df)} menu items")
 
 def preprocess_name(name):
-    # Remove non-alphanumeric characters and convert to lowercase
     return re.sub(r'[^a-zA-Z0-9\s]', '', str(name).lower())
 
 print("Preprocessing data...")
@@ -72,12 +71,24 @@ for i, business in enumerate(tqdm(businesses)):
         random_reviews = random.sample(business_reviews, min(3, len(business_reviews)))
         menu_items = menus_df[menus_df['restaurant_id'] == match['id']]
         
+        # Calculate average score
+        yelp_score = float(business.get('stars', 0))
+        uber_score = float(match.get('score', 0)) if pd.notnull(match.get('score')) else 0
+        avg_score = (yelp_score + uber_score) / 2 if yelp_score and uber_score else yelp_score or uber_score or None
+        
+        # Calculate total review count
+        yelp_review_count = int(business.get('review_count', 0))
+        uber_review_count = int(match.get('ratings', 0)) if pd.notnull(match.get('ratings')) else 0
+        total_review_count = yelp_review_count + uber_review_count
+        
         matched_data.append({
             'uber_eats_id': match['id'],
             'name': business['name'],
             'address': business.get('address', ''),
             'description': business.get('categories', ''),
             'price_point': match['price_range'],
+            'avg_score': round(avg_score, 2) if avg_score is not None else None,
+            'review_count': total_review_count,
             'reviews': [{'text': r['text'], 'rating': r['stars']} for r in random_reviews],
             'menu': menu_items.to_dict('records')
         })
