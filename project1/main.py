@@ -10,6 +10,9 @@ from typing_extensions import Annotated
 from bson import ObjectId
 from pymongo import ReturnDocument
 
+
+
+
 app = FastAPI(title="Food API", summary="stores users preference data for restaurants")
 
 # Add CORS middleware
