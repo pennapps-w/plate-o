@@ -1,0 +1,12 @@
+services:
+  service1:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - mode: ingress
+        target: 8000
+        published: 8000
+    environment:
+      - MONGODB_URI
