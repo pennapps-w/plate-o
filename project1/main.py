@@ -9,13 +9,15 @@ from typing_extensions import Annotated
 from bson import ObjectId
 from pymongo import ReturnDocument
 
-app = FastAPI(title="Food API", summary="stores users preference data for restaurants")x
+app = FastAPI(title="Food API", summary="stores users preference data for restaurants")
 
 # MongoDB connection
-MONGODB_URI = os.getenv('MONGODB_URI')
+# MONGODB_URI = os.getenv('MONGODB_URI')
+MONGODB_URI = "mongodb+srv://Cluster90742:YnlhQVJ3W21X@cluster90742.xshuc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster90742"
 client = AsyncIOMotorClient(MONGODB_URI)
 db = client.plato
 collection = db.plato_users
+rest_collection = db.plato_restaurants
 
 
 # Represents an ObjectId field in the database.
@@ -24,6 +26,8 @@ PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
 
+# user stuff
+
 class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str = None
@@ -31,6 +35,7 @@ class User(BaseModel):
     likes: str = None 
     dislikes: str = None 
     never: str = None
+    price: str = None
     
 class UpdateUser(BaseModel):
     name: Optional[str] = None
@@ -38,6 +43,7 @@ class UpdateUser(BaseModel):
     likes: Optional[str] = None 
     dislikes: Optional[str] = None 
     never: Optional[str] = None
+    price: str = None
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         json_encoders={ObjectId: str}
@@ -131,3 +137,40 @@ async def delete_user(id: str):
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(status_code=404, detail=f"user {id} not found")
+
+
+
+# restaurant stuff
+
+class Restaurant(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    data: object = None
+    
+
+class RestaurantCollection(BaseModel):
+    restaurants: List[Restaurant]
+
+@app.post(
+    "/restaurants/", 
+    response_description="Add new restaurant",
+    response_model=Restaurant,
+    status_code=status.HTTP_201_CREATED,
+    response_model_by_alias=False
+)
+async def create_restaurant(restaurant: Restaurant = Body(...)):
+    new_restaurant = await rest_collection.insert_one(
+        restaurant.model_dump(by_alias=True, exclude=["id"])
+    )
+    created_restaurant = await rest_collection.find_one(
+        {"_id": new_restaurant.inserted_id}
+    )
+    return created_restaurant
+
+@app.get(
+    "/restaurants/",
+    response_description="List all users",
+    response_model=RestaurantCollection,
+    response_model_by_alias=False,
+)
+async def list_restaurants():
+    return RestaurantCollection(restaurants=await rest_collection.find().to_list(1000))
