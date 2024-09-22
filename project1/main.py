@@ -18,7 +18,6 @@ from menu_item import MenuChooser
 
 logger = logging.getLogger(__name__)
 
-
 tracemalloc.start()
 
 from updateuserinfo import update_bad
