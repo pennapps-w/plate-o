@@ -40,6 +40,9 @@ export function FoodSwiper() {
   const [showRejectModal, setShowRejectModal] = useState(false); // Added initialization
   const [rejectReason, setRejectReason] = useState(""); // Added initialization
 
+  const [selectedMenuItem, setSelectedMenuItem] = useState("");
+  const [selectedMeuItemPrice, setSelectedMenuItemPrice] = useState("");
+
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-30, 30]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
@@ -56,9 +59,36 @@ export function FoodSwiper() {
       }
       const data = await response.json();
       setCurrentRestaurant(data.recommendation);
-      console.log(data.recommendation);
+      // console.log(data.recommendation);
+
+      console.log("data.recommendation", data.recommendation);
+
+      try {
+        const res2 = await fetch(
+          `http://127.0.0.1:8000/get_menu_item/66ee6b3a7aa3130e68418c7d`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data.recommendation),
+          }
+        );
+        if (!res2.ok) {
+          throw new Error("Failed to fetch menu item");
+        }
+        const [order, total_price] = await res2.json();
+        console.log("res2", res2);
+
+        setSelectedMenuItem(order);
+        console.log("menu item", order);
+        setSelectedMenuItemPrice(total_price.toString());
+      } catch (error) {
+        console.error("Error fetching menu item:", error);
+      }
+
       // console.log("HIHIHIHIHIHIHI");
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.error("Error fetching recommendation:", error);
     } finally {
@@ -177,7 +207,7 @@ export function FoodSwiper() {
                   {currentRestaurant?.name}
                 </h1>
                 <h2 className="text-xl text-gray-700 mb-3">
-                  {currentRestaurant?.menu[0].name}
+                  {selectedMenuItem}
                 </h2>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">

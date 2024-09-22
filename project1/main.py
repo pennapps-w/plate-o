@@ -13,6 +13,8 @@ from recommender import Recommender
 import tracemalloc
 import requests
 import logging
+from menu_item import MenuChooser
+
 
 logger = logging.getLogger(__name__)
 
@@ -172,28 +174,26 @@ async def delete_user(id: str):
 
 
 class Bank(BaseModel):
-    income: float = None 
-    bills: float = None 
+    income: float = None
+    bills: float = None
     expenses: float = None
+
 
 @app.put("/users/{id}/bank")
 async def update_bank(id: str, tmp: Bank = Body(...)):
-    tmp2 = tmp.model_dump() 
+    tmp2 = tmp.model_dump()
     # add_expenses([tmp2["expenses"]])
     # add_income([tmp2["bills"]], [tmp2["income"]])
 
     bal = tmp2["income"] - tmp2["bills"] - tmp2["expenses"]
-    numMeals = min(bal//20, 30)    
-
+    numMeals = min(bal // 20, 30)
 
     # update_result = await collection.find_one_and_update({"_id": ObjectId(id)}, {"$set": {"balance": bal, "meal_budget": (bal//(numMeals+1))}}, return_document=ReturnDocument.AFTER)
     # if update_result is not None:
-        # return update_result 
+    # return update_result
     # else:
-        # raise HTTPException(status_code=404, detail=f"User {id} not found")
+    # raise HTTPException(status_code=404, detail=f"User {id} not found")
     # response = requests.put("https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d", json={"balance": bal, "meal_budget": (bal//numMeals)})
-
-
 
 
 @app.options("/dislike_because/{id}/bank")
@@ -263,16 +263,15 @@ async def get_recommendation(id: str):
     raise HTTPException(status_code=404, detagitil="No recommendation found")
 
 
-
-
 class DislikeEntry(BaseModel):
-    id: str = None 
-    reason: str = None 
+    id: str = None
+    reason: str = None
     restaurant_id: str = None
+
 
 @app.post("/dislike_because/{id}", response_description="Reject a recommendation")
 # async def dislike_because(id: str, reason: str, restaurant_id: str):
-async def dislike_because(id: str, stuff : DislikeEntry = Body(...)):
+async def dislike_because(id: str, stuff: DislikeEntry = Body(...)):
     # Fetch the user
     logger.info("dsilike_because")
     stuff2 = stuff.model_dump()
@@ -281,7 +280,7 @@ async def dislike_because(id: str, stuff : DislikeEntry = Body(...)):
     reason = stuff2["reason"]
     restaurant_id = stuff2["restaurant_id"]
 
-    logger.info(id,reason,restaurant_id)
+    logger.info(id, reason, restaurant_id)
     logger.info("ILOVEDISLIKE_BECAUSE")
 
     # logger.info("starting dislike_because")
@@ -346,6 +345,7 @@ async def dislike_because(id: str, stuff : DislikeEntry = Body(...)):
 
     return update_json
 
+
 @app.options("/dislike_because/{id}")
 async def preflight_dislike_because(id: str):
     # Return appropriate CORS headers for the preflight request
@@ -358,17 +358,110 @@ async def preflight_dislike_because(id: str):
         },
     )
 
-    # if update_result.modified_count == 0:
-    #     raise HTTPException(status_code=400, detail="Failed to update user preferences")
 
-    # recommender = Recommender(id)
-    # result = await recommender.rejected_recommendation(reason)
+class MenuItem(BaseModel):
+    restaurant_id: int
+    category: str
+    name: str
+    description: str
+    price: str
 
-    # if result:
-    # return {
-    #     "message": "Recommendation rejected successfully",
-    #     "new_dislikes": current_dislikes,
-    #     "rejected_recommendations": rejected_recommendations,
-    # }
-    # return result
-    # raise HTTPException(status_code=404, detail="Failed to reject recommendation")
+
+class RestaurantData(BaseModel):
+    uber_eats_id: int
+    name: str
+    address: str
+    description: str
+    price_point: str
+    avg_score: float
+    review_count: int
+    menu: List[MenuItem]
+    latitude: float
+    longitude: float
+    id: str
+    final_score: float
+
+
+@app.post("/get_menu_item/{user_id}")
+async def get_menu_item(user_id: str, restaurant_data: RestaurantData):
+    try:
+        response = await read_user(user_id)
+        user = response
+
+        # Prepare user_data dictionary
+        user_data = {
+            "preferences": {
+                "likes": user.get("likes", ""),
+                "dislikes": user.get("dislikes", ""),
+                "bans": user.get("never", ""),
+            },
+            "budget": {
+                "max_price_point": user.get("price", 2),
+                "meal_budget": user.get("meal_budget", 15.00),
+            },
+        }
+
+        # print(f"restaurant: {restaurant_data}")
+
+        menu_chooser = MenuChooser(user_data, api_key)
+        # order, total_price = menu_chooser.robust_selection(restaurant_data)
+        return menu_chooser.robust_selection(
+            restaurant_data.model_dump()
+        )  #  {"order": order, "total_price": total_price}
+    except Exception as e:
+        logger.error(f"Error in get_menu_item: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    # try:
+    #     response = await read_user(user_id)
+    #     user = response
+
+    #     # Prepare user_data dictionary
+    #     user_data = {
+    #         "preferences": {
+    #             "likes": user.get("likes", ""),
+    #             "dislikes": user.get("dislikes", ""),
+    #             "bans": user.get("never", ""),
+    #         },
+    #         "budget": {
+    #             "max_price_point": user.get("price", 2),
+    #             "meal_budget": user.get("meal_budget", 15.00),
+    #         },
+    #     }
+
+    #     print(f"restaurant: {restaurant}")
+
+    #     menu_chooser = MenuChooser(user_data, api_key)
+    #     order, total_price = menu_chooser.robust_selection(restaurant)
+    #     return {"order": order, "total_price": total_price}
+    # except Exception as e:
+    #     logger.error(f"Error in get_menu_item: {str(e)}")
+    #     raise HTTPException(status_code=500, detail=str(e))
+    # try:
+    #     # Fetch user data
+    #     response = await read_user(user_id)
+    #     user = response
+
+    #     # Prepare user_data dictionary
+    #     user_data = {
+    #         "preferences": {
+    #             "likes": user.get("likes", ""),
+    #             "dislikes": user.get("dislikes", ""),
+    #             "bans": user.get("never", ""),
+    #         },
+    #         "budget": {
+    #             "max_price_point": user.get("price", 2),
+    #             "meal_budget": user.get("meal_budget", 15.00),
+    #         },
+    #     }
+
+    #     # Initialize MenuChooser
+    #     menu_chooser = MenuChooser(user_data, api_key)
+
+    #     # Call robust_selection
+    #     order_string, total_price = menu_chooser.robust_selection(restaurant)
+
+    #     return {"order": order_string, "total_price": total_price}
+
+    # except Exception as e:
+    #     logger.error(f"Error in get_menu_item: {str(e)}")
+    #     raise HTTPException(status_code=500, detail=str(e))
