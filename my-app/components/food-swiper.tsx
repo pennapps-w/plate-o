@@ -65,7 +65,7 @@ export function FoodSwiper() {
         // Call rejected_recommendation
         const tmpbody = JSON.stringify({
           id: "66ee6b3a7aa3130e68418c7d",
-          reason: "i hate Restaurants, Sushi Bars, Japanese",
+          reason: "i hate Restaurants, Sushi Bars, Japanese, bubble tea, milk tea, fruit",
           restaurant_id: currentRestaurant?.id || "",
         });
         console.log(tmpbody);
@@ -86,14 +86,14 @@ export function FoodSwiper() {
         if (!response.ok) {
           throw new Error("Failed to reject recommendation");
         }
-        const result = await response.json();
-        console.log(result)
-        console.log(result.message);
-        console.log("New dislikes:", result.new_dislikes);
-        console.log(
-          "Rejected recommendations:",
-          result.rejected_recommendations
-        );
+        // const result = await response.json();
+        // console.log(result)
+        // console.log(result.message);
+        // console.log("New dislikes:", result.new_dislikes);
+        // console.log(
+        //   "Rejected recommendations:",
+        //   result.rejected_recommendations
+        // );
         // Fetch new recommendation
         await fetchRecommendation();
       } catch (error) {

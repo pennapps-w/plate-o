@@ -29,7 +29,7 @@ app = FastAPI(title="Food API", summary="stores users preference data for restau
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["http://localhost:3000"],  # Allows all origins
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
@@ -289,7 +289,21 @@ async def dislike_because(id: str, stuff : DislikeEntry = Body(...)):
 
     logger.info("updated result")
 
-    return update_result
+    update_json = {
+        "update_result": {
+            "matched_count": update_result.matched_count,
+            "modified_count": update_result.modified_count,
+            "upserted_id": (
+                str(update_result.upserted_id) if update_result.upserted_id else None
+            ),
+        },
+        "updated_fields": {
+            "dislikes": current_dislikes,
+            "rejected_recommendations": rejected_recommendations,
+        },
+    }
+
+    return update_json
 
 @app.options("/dislike_because/{id}")
 async def preflight_dislike_because(id: str):
