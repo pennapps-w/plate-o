@@ -3,3 +3,7 @@ fastapi
 motor
 pydantic
 asyncio
+aiohttp
+requests
+numpy
+asyncio
