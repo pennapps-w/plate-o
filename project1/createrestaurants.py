@@ -98,7 +98,6 @@ with open('merged_restaurant_data.json', 'w') as f:
     json.dump(matched_data, f, indent=2)
 
 print(f"Merged data saved. Total matched restaurants: {len(matched_data)}")
-
 if matched_data:
     print("\nSample of merged data:")
     print(json.dumps(matched_data[0], indent=2))
