@@ -10,7 +10,22 @@ from typing_extensions import Annotated
 from bson import ObjectId
 from pymongo import ReturnDocument
 from recommender import Recommender
+<<<<<<< Updated upstream
 import asyncio
+=======
+import tracemalloc
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+tracemalloc.start()
+
+from updateuserinfo import update_bad
+
+api_key = "sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs"
+
+>>>>>>> Stashed changes
 
 app = FastAPI(title="Food API", summary="stores users preference data for restaurants")
 
@@ -48,11 +63,10 @@ class User(BaseModel):
     likes: str = None
     dislikes: str = None
     never: str = None
-    price: str = None
-
     price: int = None
     meal_budget: float = None
     balance: float = None
+    rejected_recommendations: list[str] = []
 
 
 class UpdateUser(BaseModel):
@@ -64,6 +78,7 @@ class UpdateUser(BaseModel):
     price: Optional[int] = None
     meal_budget: Optional[float] = None
     balance: Optional[float] = None
+    rejected_recommendations: Optional[list[str]] = None
     model_config = ConfigDict(
         arbitrary_types_allowed=True, json_encoders={ObjectId: str}
     )
@@ -204,39 +219,69 @@ async def get_recommendation(id: str):
     recommender = Recommender(id)
     recommendation = await recommender.get_recommendation()
     if recommendation:
+<<<<<<< Updated upstream
         return recommendation
     raise HTTPException(status_code=404, detagitil="No recommendation found")
+=======
+        return {"recommendation": recommendation, "recommender": recommender}
+    raise HTTPException(status_code=404, detail="No recommendation found")
+>>>>>>> Stashed changes
 
 
-# @app.put(
-#     "/update_user_preferences/{id}",
-#     response_description="Update user preferences",
-#     response_model=User,
-#     response_model_by_alias=False,
-# )
-# async def update_user_preferences(
-#     id: str,
-#     likes: Optional[str] = None,
-#     dislikes: Optional[str] = None,
-#     never: Optional[str] = None,
-# ):
-#     update_data = {}
-#     if likes is not None:
-#         update_data["likes"] = likes
-#     if dislikes is not None:
-#         update_data["dislikes"] = dislikes
-#     if never is not None:
-#         update_data["never"] = never
+@app.post("/dislike_because/{id}", response_description="Reject a recommendation")
+# async def dislike_because(id: str, reason: str, restaurant_id: str):
+async def dislike_because(stuff: dict):
+    # Fetch the user
+    id = stuff["id"]
+    reason = stuff["reason"]
+    restaurant_id = stuff["restaurant_id"]
+    logger.info("starting dislike_because")
+    user = await collection.find_one({"_id": ObjectId(id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    logger.info(f"User: {user}")
+    # Update dislikes
+    current_dislikes = user.get("dislikes", [])
+    # current_dislikes += reason
+    # FOR GENE:
 
-#     if update_data:
-#         update_result = await collection.find_one_and_update(
-#             {"_id": ObjectId(id)},
-#             {"$set": update_data},
-#             return_document=ReturnDocument.AFTER,
-#         )
-#         if update_result is not None:
-#             return update_result
-#         else:
-#             raise HTTPException(status_code=404, detail=f"User {id} not found")
+    restaurant_data = await rest_collection.find_one({"id": restaurant_id})
+    # WAIT FOR IT TO FINISH:
+    while restaurant_data is None:
+        await asyncio.sleep(0.1)  # Wait for 100ms before checking again
+        restaurant_data = await rest_collection.find_one({"id": restaurant_id})
+    logger.info(restaurant_data)
 
-#     raise HTTPException(status_code=400, detail="No update data provided")
+    # current_dislikes = update_bad(api_key, current_dislikes, restaurant_data, reason)
+    # logger.info(f"Current dislikes: {current_dislikes}")
+
+    # Update rejected_recommendations
+    rejected_recommendations = user.get("rejected_recommendations", [])
+    rejected_recommendations.append(restaurant_id)
+    # logger.info(f"Rejected recommendations: {rejected_recommendations}")
+    # logger.info(f"Restaurant ID: {restaurant_id}")
+    # Update the user in the database
+    # update_result = await collection.update_one(
+    #     {"_id": ObjectId(id)},
+    #     {
+    #         "$set": {
+    #             "dislikes": current_dislikes,
+    #             "rejected_recommendations": rejected_recommendations,
+    #         }
+    #     },
+    # )
+
+    # if update_result.modified_count == 0:
+    #     raise HTTPException(status_code=400, detail="Failed to update user preferences")
+
+    # recommender = Recommender(id)
+    # result = await recommender.rejected_recommendation(reason)
+
+    # if result:
+    # return {
+    #     "message": "Recommendation rejected successfully",
+    #     "new_dislikes": current_dislikes,
+    #     "rejected_recommendations": rejected_recommendations,
+    # }
+    # return result
+    # raise HTTPException(status_code=404, detail="Failed to reject recommendation")

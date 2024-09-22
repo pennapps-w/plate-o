@@ -88,33 +88,33 @@ class Recommender:
 
     async def rejected_recommendation(self, reason):
         self.rejectedRecommendations += 1
-        async with ClientSession() as session:
-            async with session.get(user_root + self.user_id) as response:
-                user_preferences = await response.json()
+        # async with ClientSession() as session:
+        #     async with session.get(user_root + self.user_id) as response:
+        #         user_preferences = await response.json()
 
-        newDislikes = await updater.update_bad(
-            {
-                "preferences": {
-                    "likes": user_preferences["likes"],
-                    "dislikes": user_preferences["dislikes"],
-                    "never": user_preferences["never"],
-                },
-                "budget": {
-                    "max_price_point": user_preferences["price"],
-                    "meal_budget": user_preferences["meal_budget"],
-                },
-            },
-            self.restaurant,
-            reason,
-        )
+        # newDislikes = await updater.update_bad(
+        #     {
+        #         "preferences": {
+        #             "likes": user_preferences["likes"],
+        #             "dislikes": user_preferences["dislikes"],
+        #             "never": user_preferences["never"],
+        #         },
+        #         "budget": {
+        #             "max_price_point": user_preferences["price"],
+        #             "meal_budget": user_preferences["meal_budget"],
+        #         },
+        #     },
+        #     self.restaurant,
+        #     reason,
+        # )
 
-        async with ClientSession() as session:
-            async with session.put(
-                user_root + self.user_id, json={"dislikes": newDislikes}
-            ) as response:
-                await response.json()
+        # async with ClientSession() as session:
+        #     async with session.put(
+        #         user_root + self.user_id, json={"dislikes": newDislikes}
+        #     ) as response:
+        #         await response.json()
 
-        return newDislikes
+        # return newDislikes
 
     async def accepted_recommendation(self):
         # update restaurant precedence to be lower

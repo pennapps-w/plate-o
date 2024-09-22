@@ -38,7 +38,7 @@ export function FoodSwiper() {
         throw new Error("Failed to fetch recommendation");
       }
       const data = await response.json();
-      setCurrentRestaurant(data);
+      setCurrentRestaurant(data.recommendation);
     } catch (error) {
       console.error("Error fetching recommendation:", error);
     } finally {
@@ -55,20 +55,32 @@ export function FoodSwiper() {
     if (swipeDirection === "left") {
       setIsLoading(true);
       try {
+        console.log("Swiping left");
         // Call rejected_recommendation
         const response = await fetch(
-          "http://127.0.0.1:8000/rejected_recommendation/66ee6b3a7aa3130e68418c7d",
+          "http://127.0.0.1:8000/dislike_because/66ee6b3a7aa3130e68418c7d",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ reason: "Not interested" }), // You might want to add a reason input
+            body: JSON.stringify({
+              id: "66ee6b3a7aa3130e68418c7d",
+              reason: "Not interested",
+              restaurant_id: "20297" || "",
+            }),
           }
         );
         if (!response.ok) {
-          throw new Error("Failed to update rejected recommendation");
+          throw new Error("Failed to reject recommendation");
         }
+        const result = await response.json();
+        console.log(result.message);
+        console.log("New dislikes:", result.new_dislikes);
+        console.log(
+          "Rejected recommendations:",
+          result.rejected_recommendations
+        );
         // Fetch new recommendation
         await fetchRecommendation();
       } catch (error) {

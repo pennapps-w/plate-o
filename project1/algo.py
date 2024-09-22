@@ -5,6 +5,11 @@ import re
 import random
 import aiohttp
 import math
+import logging
+
+# init logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class RestaurantScorer:
@@ -129,8 +134,10 @@ class RestaurantScorer:
                 ) as response:
                     response_data = await response.json()
                     llm_output = response_data["choices"][0]["message"]["content"]
-                    print(llm_output.strip())
-                    int_output = re.findall(r"\d+", llm_output.strip())[-1]
+                    regexthing = re.findall(r"\d+", llm_output.strip())
+                    if not regexthing:
+                        print("No number found in LLM output")
+                    int_output = regexthing[-1]
                     llm_score = float(int_output) / 10  # Convert to a 0-10 scale
                     return llm_score
         except Exception as e:
@@ -171,18 +178,31 @@ class RestaurantScorer:
 
         return environmental_factor
 
-    def calculate_final_score(self, restaurant):
-        llm_score = self.calculate_llm_score(restaurant)
+    async def calculate_final_score(self, restaurant):
+        try:
+            llm_score = await self.calculate_llm_score(restaurant)
 
-        # Calculate environmental factor based on carbon impact
-        environmental_factor = self.calculate_carbon_impact(
-            (restaurant["latitude"], restaurant["longitude"])
-        )
+            # Calculate environmental factor based on carbon impact
+            # print("before carbon impact")
+            environmental_factor = self.calculate_carbon_impact(
+                (restaurant["latitude"], restaurant["longitude"])
+            )
+            # print("after carbon impact")
+            # print(restaurant)
+            # print(environmental_factor)
 
-        # Apply the environmental factor to the LLM score
-        final_score = llm_score * environmental_factor
-
-        return final_score
+            # logger.info(f"LLM Score: {llm_score}")
+            # logger.info(f"Environmental Factor: {environmental_factor}")
+            # Apply the environmental factor to the LLM score
+            final_score = llm_score * environmental_factor
+            # print("RETURNING " + str(final_score))
+            return final_score
+        except KeyError as e:
+            logger.error(f"Error accessing latitude or longitude: {e}")
+            return 0  # Return a default score in case of error
+        except Exception as e:
+            logger.error(f"Unexpected error in calculate_final_score: {e}")
+            return 0  # Return a default score in case of error
 
 
 # Example usage
