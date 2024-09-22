@@ -8,6 +8,17 @@ import {
   useTransform,
 } from "framer-motion";
 import { X, Heart, DollarSign, Leaf, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface Restaurant {
   name: string;
@@ -22,8 +33,10 @@ export function FoodSwiper() {
   const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(
     null
   );
-  // const [direction, setDirection] = useState<"left" | "right" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [otherReason, setOtherReason] = useState("");
+  const [showRejectModal, setShowRejectModal] = useState(false); // Added initialization
+  const [rejectReason, setRejectReason] = useState(""); // Added initialization
 
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-30, 30]);
@@ -55,63 +68,52 @@ export function FoodSwiper() {
     fetchRecommendation();
   }, []);
 
-  const handleSwipe = async (swipeDirection: "left" | "right") => {
-    // setDirection(swipeDirection);
+  const handleSwipe = (swipeDirection: "left" | "right") => {
     if (swipeDirection === "left") {
-      setIsLoading(true);
-      try {
-        console.log(currentRestaurant);
-        console.log("Swiping left");
-        // Call rejected_recommendation
-        const tmpbody = JSON.stringify({
-          id: "66ee6b3a7aa3130e68418c7d",
-          reason: "i hate Restaurants, Sushi Bars, Japanese, bubble tea, milk tea, fruit",
-          restaurant_id: currentRestaurant?.id || "",
-        });
-        console.log(tmpbody);
-        const response = await fetch(
-          "https://blobotic-service1--8000.prod1.defang.dev/dislike_because/66ee6b3a7aa3130e68418c7d",
-          {
-            // mode: "no-cors",
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*",
-            },
-            body: tmpbody,
-            credentials: 'include'
-          }
-        );
-        console.log(response)
-        if (!response.ok) {
-          throw new Error("Failed to reject recommendation");
-        }
-        // const result = await response.json();
-        // console.log(result)
-        // console.log(result.message);
-        // console.log("New dislikes:", result.new_dislikes);
-        // console.log(
-        //   "Rejected recommendations:",
-        //   result.rejected_recommendations
-        // );
-        // Fetch new recommendation
-        await fetchRecommendation();
-      } catch (error) {
-        console.error("Error handling swipe:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      setShowRejectModal(true);
+    } else if (swipeDirection === "right") {
+      // Handle right swipe logic here if needed
     }
   };
 
-  // const handleDragEnd = (event: any, info: any) => {
-  //   const swipeThreshold = 100;
-  //   if (info.offset.x > swipeThreshold) {
-  //     handleSwipe("right");
-  //   } else if (info.offset.x < -swipeThreshold) {
-  //     handleSwipe("left");
-  //   }
-  // };
+  const handleReject = async () => {
+    setIsLoading(true);
+    try {
+      const reason = rejectReason === "other" ? otherReason : rejectReason;
+      console.log("Reject reason:", reason);
+      const tmpbody = JSON.stringify({
+        id: "66ee6b3a7aa3130e68418c7d",
+        reason,
+        restaurant_id: currentRestaurant?.id || "",
+      });
+      console.log(tmpbody);
+      const response = await fetch(
+        "https://blobotic-service1--8000.prod1.defang.dev/dislike_because/66ee6b3a7aa3130e68418c7d",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+          body: tmpbody,
+          credentials: "include",
+        }
+      );
+      console.log(response);
+      if (!response.ok) {
+        throw new Error("Failed to reject recommendation");
+      }
+      await fetchRecommendation();
+    } catch (error) {
+      console.error("Error handling reject:", error);
+    } finally {
+      setIsLoading(false);
+      setShowRejectModal(false);
+      setRejectReason("");
+      setOtherReason("");
+    }
+  };
+
   const handleDragEnd = (
     event: React.MouseEvent<HTMLDivElement>,
     info: {
@@ -215,6 +217,32 @@ export function FoodSwiper() {
             <Heart className="w-8 h-8 text-white" />
           </button>
         </div>
+        <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Why do you dislike about this restaurant?
+              </DialogTitle>
+              <DialogDescription>
+                Your feedback helps us improve our algorithm.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              <Label htmlFor="otherReason">Please specify:</Label>
+              <Input
+                id="otherReason"
+                value={otherReason}
+                onChange={(e) => setOtherReason(e.target.value)}
+                placeholder="Enter your reason here"
+              />
+            </div>
+            <DialogFooter>
+              <Button onClick={handleReject} disabled={!otherReason.trim()}>
+                Submit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
