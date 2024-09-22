@@ -53,90 +53,94 @@ def create_acct(**kwargs):
         print("Response JSON:", response.json())
 
 
-def add_expenses(purchaseList):
-    # response = requests.get(BASE_URL + f"/customers?key={API_KEY}")
-    # logger.info(response.json())
-    # customer = response.json()[0]
-    # cid = customer["_id"]
-    logger.info("HI")
-    # response = requests.get(BASE_URL + f"/accounts?key={API_KEY}")
-    # logger.info(response.text)
-    # logger.info(type(response))
-    # account = response.json()[0]
-    aid = "66efaa9f9683f20dd518a80d" # account["_id"]
-    logger.info(purchaseList)
+    def add_expenses(purchaseList):
+        # response = requests.get(BASE_URL + f"/customers?key={API_KEY}")
+        # logger.info(response.json())
+        # customer = response.json()[0]
+        # cid = customer["_id"]
+        logger.info("HI")
+        # response = requests.get(BASE_URL + f"/accounts?key={API_KEY}")
+        # logger.info(response.text)
+        # logger.info(type(response))
+        # account = response.json()[0]
+        aid = "66efaa9f9683f20dd518a80d" # account["_id"]
+        logger.info(purchaseList)
 
-    response = requests.get("https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d")
-    users = response.json()
-    # logger.info(response.text)
-    # logger.info(type(response))
-    # users = response.json()["users"][0]
-    uid = users["id"]
-    ubal = users["balance"]
+        response = requests.get("https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d")
+        logger.info("HIIII")
+        logger.info(response.text)
+        users = response.json()
+        # logger.info(response.text)
+        # logger.info(type(response))
+        # users = response.json()["users"][0]
+        uid = users["id"]
+        ubal = users["balance"]
 
-    logger.info("Starting to get to purchase list")
+        logger.info("Starting to get to purchase list")
 
 
-    for i in purchaseList:
-        response = requests.post(BASE_URL + "/accounts/" + aid + f"/purchases?key={API_KEY}", json={
-            "merchant_id": "n/a",
-            "medium": "balance",
-            "purchase_date": "2024-09-22",
-            "amount": i,
-            "status": "pending",
-            "description": "n/a"
-        })
+        for i in purchaseList:
+            response = requests.post(BASE_URL + "/accounts/" + aid + f"/purchases?key={API_KEY}", json={
+                "merchant_id": "n/a",
+                "medium": "balance",
+                "purchase_date": "2024-09-22",
+                "amount": i,
+                "status": "pending",
+                "description": "n/a"
+            })
 
-        ubal -= i["amount"]
-    
-    numMeals = min(ubal//20, 30)
-    response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
+            ubal -= i["amount"]
         
-def add_income(billList, incomeList):
-    # response = requests.get(BASE_URL + f"/accounts?key={API_KEY}")
-    # print("add_income", response.json())
-    # customer = response.json()[0]
-    aid = "66efaa9f9683f20dd518a80d" # customer["_id"]
+        # numMeals = min(ubal//20, 30)
+        # response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
+            
+    def add_income(billList, incomeList):
+        # response = requests.get(BASE_URL + f"/accounts?key={API_KEY}")
+        # print("add_income", response.json())
+        # customer = response.json()[0]
+        aid = "66efaa9f9683f20dd518a80d" # customer["_id"]
 
-    logger.info(billList, incomeList)
+        logger.info(billList, incomeList)
 
-    response = requests.get("https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d")
-    users = response.json()
-    uid = users["id"]
-    ubal = users["balance"]
+        response = requests.get("https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d")
+        logger.info("HIIII")
+        logger.info(response.text)
+        users = response.json()
+        uid = users["id"]
+        ubal = users["balance"]
 
-    income = 0 
+        income = 0 
 
-    logger.info("starting billilist")
+        logger.info("starting billilist")
 
-    for i in billList:
-        response = requests.post(BASE_URL + "/accounts/" + aid + "/bills", json={
-            "status": "pending",
-            "payee": "n/a",
-            "nickname": "n/a",
-            "payment_date": "2024-09-21",
-            "recurring_date": 30
-        })
-        income -= i
+        for i in billList:
+            response = requests.post(BASE_URL + "/accounts/" + aid + "/bills", json={
+                "status": "pending",
+                "payee": "n/a",
+                "nickname": "n/a",
+                "payment_date": "2024-09-21",
+                "recurring_date": 30
+            })
+            income -= i
 
-    for i in incomeList:
-        response = requests.post(BASE_URL + "/accounts/" + aid + "/deposits", json={
-            "medium": "balance",
-            "transaction_date": "2024-09-21",
-            "status": "pending",
-            "description": "n/a"
-        })
-        income += i
-    
-    if income <= 0:
-        ubal += income 
-    else:
-        ubal += income * 0.2
+        for i in incomeList:
+            response = requests.post(BASE_URL + "/accounts/" + aid + "/deposits", json={
+                "medium": "balance",
+                "transaction_date": "2024-09-21",
+                "status": "pending",
+                "description": "n/a"
+            })
+            income += i
+        
+        if income <= 0:
+            ubal += income 
+        else:
+            ubal += income * 0.2
 
 
-    logger.info("retrning a response haha")
-    numMeals = min(ubal//20, 30)    
-    response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
+        logger.info("retrning a response haha")
+        numMeals = min(ubal//20, 30)    
+        response = requests.put(USER_URL + uid, json={"balance": ubal, "meal_budget": (ubal//numMeals)})
 
     # sumDeposits = sum(i[""])
 

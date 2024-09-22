@@ -31,7 +31,7 @@ export default function Home() {
       if (response.ok) {
         const updatedUser = await response.json();
         console.log("User updated successfully:", updatedUser);
-        router.push("/start");
+        router.push("/bank");
       } else {
         console.error("Failed to update user preferences");
       }
