@@ -7,7 +7,7 @@ from updateuserinfo import Updater
 user_root = "https://blobotic-service1--8000.prod1.defang.dev/users/"
 restaurant_root = "https://blobotic-service1--8000.prod1.defang.dev/restaurants/"
 # restaurant_root = "http://127.0.0.1:8000/restaurants"
-api_key = "sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs"
+api_key = "sk-tune-zEd2gVmvPCI6uzltkAdgtVhw6UZthlXn0gY"
 updater = Updater(api_key)
 
 

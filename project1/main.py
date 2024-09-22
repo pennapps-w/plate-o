@@ -23,7 +23,7 @@ tracemalloc.start()
 
 from updateuserinfo import update_bad
 
-api_key = "sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs"
+api_key = "sk-tune-zEd2gVmvPCI6uzltkAdgtVhw6UZthlXn0gY"
 
 import asyncio
 

@@ -205,7 +205,7 @@ class MenuChooser:
 #     "score": 5,
 # }
 
-# api_key = "sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs"
+# api_key = "sk-tune-zEd2gVmvPCI6uzltkAdgtVhw6UZthlXn0gY"
 # # Example usage
 # user_data = {
 #     "preferences": {
@@ -245,7 +245,7 @@ class MenuChooser:
 #     "score": 5,
 # }
 
-# # api_key = 'sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs'
+# # api_key = 'sk-tune-zEd2gVmvPCI6uzltkAdgtVhw6UZthlXn0gY'
 # # scorer = MenuChooser(user_data, api_key)
 # # orderinfo = scorer.robust_selection(restaurant_data)
 # # print("ORDER:")

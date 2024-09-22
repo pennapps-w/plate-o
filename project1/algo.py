@@ -231,7 +231,7 @@ restaurant_data = {
 
 # FOR TESTING
 async def test_scorer():
-    api_key = "sk-tune-31SubFSL3vCE9hMxp9AJWzqh9MzWfUNcCNs"
+    api_key = "sk-tune-zEd2gVmvPCI6uzltkAdgtVhw6UZthlXn0gY"
     scorer = RestaurantScorer(user_data, api_key)
     final_score = await scorer.calculate_final_score(restaurant_data)
     print(f"Final score for {restaurant_data['name']}: {final_score}")
