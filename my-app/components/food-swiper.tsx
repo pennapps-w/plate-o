@@ -15,13 +15,14 @@ interface Restaurant {
   menu: Array<{ name: string; price: string }>;
   final_score: number;
   price_point: string;
+  id: string;
 }
 
 export function FoodSwiper() {
   const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(
     null
   );
-  const [direction, setDirection] = useState<"left" | "right" | null>(null);
+  // const [direction, setDirection] = useState<"left" | "right" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const x = useMotionValue(0);
@@ -30,15 +31,19 @@ export function FoodSwiper() {
 
   const fetchRecommendation = async () => {
     setIsLoading(true);
+    console.log("CURRENTLY FETCHING RECOMMENDATION");
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/get_recommendation/66ee6b3a7aa3130e68418c7d"
+        "https://blobotic-service1--8000.prod1.defang.dev/get_recommendation/66ee6b3a7aa3130e68418c7d"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch recommendation");
       }
       const data = await response.json();
-      setCurrentRestaurant(data);
+      setCurrentRestaurant(data.recommendation);
+      console.log(data.recommendation);
+      // console.log("HIHIHIHIHIHIHI");
+      console.log(data);
     } catch (error) {
       console.error("Error fetching recommendation:", error);
     } finally {
@@ -51,24 +56,44 @@ export function FoodSwiper() {
   }, []);
 
   const handleSwipe = async (swipeDirection: "left" | "right") => {
-    setDirection(swipeDirection);
+    // setDirection(swipeDirection);
     if (swipeDirection === "left") {
       setIsLoading(true);
       try {
+        console.log(currentRestaurant);
+        console.log("Swiping left");
         // Call rejected_recommendation
+        const tmpbody = JSON.stringify({
+          id: "66ee6b3a7aa3130e68418c7d",
+          reason: "i hate Restaurants, Sushi Bars, Japanese, bubble tea, milk tea, fruit",
+          restaurant_id: currentRestaurant?.id || "",
+        });
+        console.log(tmpbody);
         const response = await fetch(
-          "http://127.0.0.1:8000/rejected_recommendation/66ee6b3a7aa3130e68418c7d",
+          "https://blobotic-service1--8000.prod1.defang.dev/dislike_because/66ee6b3a7aa3130e68418c7d",
           {
+            // mode: "no-cors",
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
             },
-            body: JSON.stringify({ reason: "Not interested" }), // You might want to add a reason input
+            body: tmpbody,
+            credentials: 'include'
           }
         );
+        console.log(response)
         if (!response.ok) {
-          throw new Error("Failed to update rejected recommendation");
+          throw new Error("Failed to reject recommendation");
         }
+        // const result = await response.json();
+        // console.log(result)
+        // console.log(result.message);
+        // console.log("New dislikes:", result.new_dislikes);
+        // console.log(
+        //   "Rejected recommendations:",
+        //   result.rejected_recommendations
+        // );
         // Fetch new recommendation
         await fetchRecommendation();
       } catch (error) {
@@ -79,7 +104,21 @@ export function FoodSwiper() {
     }
   };
 
-  const handleDragEnd = (event: any, info: any) => {
+  // const handleDragEnd = (event: any, info: any) => {
+  //   const swipeThreshold = 100;
+  //   if (info.offset.x > swipeThreshold) {
+  //     handleSwipe("right");
+  //   } else if (info.offset.x < -swipeThreshold) {
+  //     handleSwipe("left");
+  //   }
+  // };
+  const handleDragEnd = (
+    event: React.MouseEvent<HTMLDivElement>,
+    info: {
+      offset: { x: number; y: number };
+      velocity: { x: number; y: number };
+    }
+  ) => {
     const swipeThreshold = 100;
     if (info.offset.x > swipeThreshold) {
       handleSwipe("right");
