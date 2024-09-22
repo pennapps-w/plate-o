@@ -1,5 +1,8 @@
 import requests
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Updater:
@@ -125,6 +128,7 @@ class Updater:
 
 
 def update_bad(api_key, dislikes, restaurant_data, reason):
+    logger.info("Starting update_bad")
     prompt = f"""
         Given the information about the user and the restaurant, print out a new dislikes string for the user. The user's previous dislikes should be a subset of this new string. You do not necessarily need to add anything, for example if the user's reason is "I don't feel like it today". However, if they cite some specific dislike in their reason, add that to the dislikes string.
         
@@ -165,7 +169,7 @@ def update_bad(api_key, dislikes, restaurant_data, reason):
 
         Now here is the relevant information:
 
-        The user does not want the following restaurant: \"{restaurant_data['name']}\". This restaurant is rated {str(restaurant_data['score'])} stars by Yelp and Uber Eats.
+        The user does not want the following restaurant: \"{restaurant_data['name']}\". This restaurant is rated {str(restaurant_data['avg_score'])} stars by Yelp and Uber Eats.
         This restaurant has the following descriptors: \"{restaurant_data['description']}\". 
 
         The user's current dislikes is the following string: \"{dislikes}\".
@@ -193,12 +197,16 @@ def update_bad(api_key, dislikes, restaurant_data, reason):
     }
 
     try:
+        logger.info("Starting LLM call")
         response = requests.post(
             "https://proxy.tune.app/chat/completions", headers=headers, json=data
         )
+        logger.info("LLM call finished")
         response.raise_for_status()
+        logger.info("Response received")
         llm_output = response.json()["choices"][0]["message"]["content"]
-        print(llm_output.strip())
+        logger.info("Response processed")
+        logger.info(llm_output.strip())
         return llm_output.strip()
     except Exception as e:
         print(f"Error in LLM call: {e}")

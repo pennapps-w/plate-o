@@ -15,6 +15,7 @@ interface Restaurant {
   menu: Array<{ name: string; price: string }>;
   final_score: number;
   price_point: string;
+  id: string;
 }
 
 export function FoodSwiper() {
@@ -39,6 +40,9 @@ export function FoodSwiper() {
       }
       const data = await response.json();
       setCurrentRestaurant(data.recommendation);
+      console.log(data.recommendation);
+      console.log("HIHIHIHIHIHIHI");
+      console.log(data);
     } catch (error) {
       console.error("Error fetching recommendation:", error);
     } finally {
@@ -55,6 +59,7 @@ export function FoodSwiper() {
     if (swipeDirection === "left") {
       setIsLoading(true);
       try {
+        console.log(currentRestaurant);
         console.log("Swiping left");
         // Call rejected_recommendation
         const response = await fetch(
@@ -66,8 +71,8 @@ export function FoodSwiper() {
             },
             body: JSON.stringify({
               id: "66ee6b3a7aa3130e68418c7d",
-              reason: "Not interested",
-              restaurant_id: "20297" || "",
+              reason: "i hate Restaurants, Sushi Bars, Japanese",
+              restaurant_id: currentRestaurant?.id || "",
             }),
           }
         );

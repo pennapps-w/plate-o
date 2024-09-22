@@ -27,7 +27,12 @@ class Recommender:
         self.sortedList = None
 
     async def getRestaurantData(self, n):
-        return n["data"]
+        tmp = n["data"]
+        # logging.info("ID:")
+        tmp["id"] = n["id"]
+        # logging.info("ID:")
+        # logging.info(n["id"])
+        return tmp
 
     async def get_restaurants(self, price_range):
         async with ClientSession() as session:
