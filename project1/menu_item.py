@@ -6,7 +6,6 @@ import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-
 class MenuChooser:
     def __init__(self, user_data, api_key):
         self.user_data = user_data
