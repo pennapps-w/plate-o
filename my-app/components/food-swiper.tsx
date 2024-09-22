@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   motion,
@@ -30,6 +30,8 @@ interface Restaurant {
 }
 
 export function FoodSwiper() {
+  const router = useRouter(); // Add this line
+
   const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(
     null
   );
@@ -72,7 +74,8 @@ export function FoodSwiper() {
     if (swipeDirection === "left") {
       setShowRejectModal(true);
     } else if (swipeDirection === "right") {
-      // Handle right swipe logic here if needed
+      // Handle right swipe logic here
+      router.push("/success"); // Navigate to /success on right swipe
     }
   };
 
@@ -124,6 +127,7 @@ export function FoodSwiper() {
     const swipeThreshold = 100;
     if (info.offset.x > swipeThreshold) {
       handleSwipe("right");
+      // router.push("/success");
     } else if (info.offset.x < -swipeThreshold) {
       handleSwipe("left");
     }
@@ -210,7 +214,10 @@ export function FoodSwiper() {
             <X className="w-8 h-8 text-white" />
           </button>
           <button
-            onClick={() => handleSwipe("right")}
+            onClick={() => {
+              handleSwipe("right");
+              router.push("/success");
+            }}
             className="bg-green-500 rounded-full p-4 shadow-lg transition-transform hover:scale-110"
             disabled={isLoading}
           >

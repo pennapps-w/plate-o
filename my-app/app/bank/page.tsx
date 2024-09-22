@@ -51,7 +51,9 @@ export default function Home() {
           <h2 className="text-2xl font-bold mb-4 text-orange-600">
             Financial information
           </h2>
-          <h3 className="text-xl font-bold mb-4 text-orange-600">Bank information</h3>
+          <h3 className="text-xl font-bold mb-4 text-orange-600">
+            Bank information
+          </h3>
           <Textarea
             placeholder="japanese food, sushi, noodles"
             className="mb-4"
