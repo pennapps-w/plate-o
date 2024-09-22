@@ -53,7 +53,7 @@ export default function Home() {
           <h3 className="text-xl font-bold mb-4 text-orange-600">Likes</h3>
           <Textarea
             placeholder="japanese food, sushi, noodles"
-            className="mb-4"
+            className="mb-4 text-black"
             value={likes}
             onChange={(e) => setLikes(e.target.value)}
           />
@@ -61,7 +61,7 @@ export default function Home() {
           <h3 className="text-xl font-bold mb-4 text-orange-600">Dislikes</h3>
           <Textarea
             placeholder="cold subways, nuts"
-            className="mb-4"
+            className="mb-4 text-black"
             value={dislikes}
             onChange={(e) => setDislikes(e.target.value)}
           />
@@ -69,7 +69,7 @@ export default function Home() {
           <h3 className="text-xl font-bold mb-4 text-orange-600">Never</h3>
           <Textarea
             placeholder="cilantro"
-            className="mb-4"
+            className="mb-4 text-black"
             value={never}
             onChange={(e) => setNever(e.target.value)}
           />
