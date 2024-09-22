@@ -1,5 +1,5 @@
-import { DeliverySuccessComponent } from "@/components/delivery-success";
+import DeliverySuccess from "@/components/delivery-success";
 
 export default function Home() {
-  return <DeliverySuccessComponent />;
+  return <DeliverySuccess />;
 }

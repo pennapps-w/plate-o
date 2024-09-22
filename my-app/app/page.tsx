@@ -74,9 +74,15 @@ export default function Home() {
             onChange={(e) => setNever(e.target.value)}
           />
 
-          <Button type="submit" className="w-full">
+          {/* <Button type="submit" className="w-full">
             Submit
-          </Button>
+          </Button> */}
+          <button
+            type="submit"
+            className="w-full bg-orange-500 text-white py-2 rounded-full mt-4 hover:bg-orange-600 transition-colors"
+          >
+            Submit{" "}
+          </button>
         </form>
       </div>
     </div>
