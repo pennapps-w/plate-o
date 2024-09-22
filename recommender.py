@@ -10,7 +10,6 @@ restaurant_root = "https://blobotic-service1--8000.prod1.defang.dev/restaurants/
 api_key = "sk-tune-zEd2gVmvPCI6uzltkAdgtVhw6UZthlXn0gY"
 updater = Updater(api_key)
 
-
 class Recommender:
     def __init__(self, user_id):
         self.user_id = user_id
