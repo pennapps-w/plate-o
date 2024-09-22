@@ -65,7 +65,7 @@ export function FoodSwiper() {
 
       try {
         const res2 = await fetch(
-          `http://127.0.0.1:8000/get_menu_item/66ee6b3a7aa3130e68418c7d`,
+          `https://blobotic-service1--8000.prod1.defang.dev/get_menu_item/66ee6b3a7aa3130e68418c7d`,
           {
             method: "POST",
             headers: {
@@ -95,6 +95,7 @@ export function FoodSwiper() {
       setIsLoading(false);
     }
   };
+  ("");
 
   useEffect(() => {
     fetchRecommendation();
