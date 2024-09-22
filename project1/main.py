@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, status, Body
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.functional_validators import BeforeValidator
@@ -224,13 +224,24 @@ async def get_recommendation(id: str):
     raise HTTPException(status_code=404, detagitil="No recommendation found")
 
 
+class DislikeEntry(BaseModel):
+    id: str = None 
+    reason: str = None 
+    restaurant_id: str = None
+
 @app.post("/dislike_because/{id}", response_description="Reject a recommendation")
 # async def dislike_because(id: str, reason: str, restaurant_id: str):
-async def dislike_because(stuff: dict):
+async def dislike_because(id: str, stuff : DislikeEntry = Body(...)):
     # Fetch the user
-    id = stuff["id"]
-    reason = stuff["reason"]
-    restaurant_id = stuff["restaurant_id"]
+    logger.info("dsilike_because")
+    stuff2 = stuff.model_dump()
+    logger.info(stuff2)
+    id = stuff2["id"]
+    reason = stuff2["reason"]
+    restaurant_id = stuff2["restaurant_id"]
+
+    logger.info(id,reason,restaurant_id)
+    logger.info("ILOVEDISLIKE_BECAUSE")
 
     # logger.info("starting dislike_because")
     user = await collection.find_one({"_id": ObjectId(id)})
@@ -240,7 +251,6 @@ async def dislike_because(stuff: dict):
     # Update dislikes
     current_dislikes = user.get("dislikes", [])
     # current_dislikes += reason
-    # FOR GENE:
 
     restaurant_data = await rest_collection.find_one({"_id": ObjectId(restaurant_id)})
     # WAIT FOR IT TO FINISH:
@@ -255,14 +265,18 @@ async def dislike_because(stuff: dict):
     current_dislikes = update_bad(
         api_key, current_dislikes, restaurant_data["data"], reason
     )
-    logger.info(f"Current dislikes: {current_dislikes}")
+    logger.info(f"Current dislikes: {current_dislikes}, blah blah blah")
 
     # Update rejected_recommendations
+    logger.info("updating rejected recommendations")
     rejected_recommendations = user.get("rejected_recommendations", [])
+    logger.info("user gotten")
     rejected_recommendations.append(restaurant_id)
+    logger.info("appended")
     # logger.info(f"Rejected recommendations: {rejected_recommendations}")
     # logger.info(f"Restaurant ID: {restaurant_id}")
     # Update the user in the database
+    logger.info("haven't started updating result")
     update_result = await collection.update_one(
         {"_id": ObjectId(id)},
         {
@@ -273,7 +287,21 @@ async def dislike_because(stuff: dict):
         },
     )
 
+    logger.info("updated result")
+
     return update_result
+
+@app.options("/dislike_because/{id}")
+async def preflight_dislike_because(id: str):
+    # Return appropriate CORS headers for the preflight request
+    return JSONResponse(
+        content="OK",
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
     # if update_result.modified_count == 0:
     #     raise HTTPException(status_code=400, detail="Failed to update user preferences")

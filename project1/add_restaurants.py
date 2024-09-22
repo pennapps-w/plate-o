@@ -14,7 +14,7 @@ def test_api():
     An automated version of the manual testing I've been doing,
     testing the lifecycle of an inserted document.
     """
-    user_root = "http://127.0.0.1:8000/restaurants/"
+    user_root = "https://blobotic-service1--8000.prod1.defang.dev/restaurants/"
 
     try:
         # Insert a user

@@ -33,7 +33,7 @@ export function FoodSwiper() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/get_recommendation/66ee6b3a7aa3130e68418c7d"
+        "https://blobotic-service1--8000.prod1.defang.dev/get_recommendation/66ee6b3a7aa3130e68418c7d"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch recommendation");
@@ -62,24 +62,30 @@ export function FoodSwiper() {
         console.log(currentRestaurant);
         console.log("Swiping left");
         // Call rejected_recommendation
+        const tmpbody = JSON.stringify({
+          id: "66ee6b3a7aa3130e68418c7d",
+          reason: "i hate Restaurants, Sushi Bars, Japanese",
+          restaurant_id: currentRestaurant?.id || "",
+        });
+        console.log(tmpbody);
         const response = await fetch(
-          "http://127.0.0.1:8000/dislike_because/66ee6b3a7aa3130e68418c7d",
+          "https://blobotic-service1--8000.prod1.defang.dev/dislike_because/66ee6b3a7aa3130e68418c7d",
           {
+            // mode: "no-cors",
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              id: "66ee6b3a7aa3130e68418c7d",
-              reason: "i hate Restaurants, Sushi Bars, Japanese",
-              restaurant_id: currentRestaurant?.id || "",
-            }),
+            body: tmpbody,
+            credentials: 'include'
           }
         );
+        console.log(response)
         if (!response.ok) {
           throw new Error("Failed to reject recommendation");
         }
         const result = await response.json();
+        console.log(result)
         console.log(result.message);
         console.log("New dislikes:", result.new_dislikes);
         console.log(
