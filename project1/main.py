@@ -12,6 +12,7 @@ from pymongo import ReturnDocument
 from recommender import Recommender
 import tracemalloc
 import logging
+from createacct import add_expenses, add_income
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +171,33 @@ async def delete_user(id: str):
     raise HTTPException(status_code=404, detail=f"user {id} not found")
 
 
+class Bank(BaseModel):
+    income: float = None 
+    bills: float = None 
+    expenses: float = None
+
+@app.post("/users/{id}/bank")
+async def update_bank(id: str, tmp: Bank = Body(...)):
+    tmp2 = tmp.model_dump()
+    add_expenses([tmp2["expenses"]])
+    add_income([tmp2["bills"]], [tmp2["income"]])
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.options("/dislike_because/{id}/bank")
+async def preflight_bank_because(id: str):
+    # Return appropriate CORS headers for the preflight request
+    return JSONResponse(
+        content="OK",
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
+
+
 # restaurant stuff
 
 
@@ -222,6 +250,8 @@ async def get_recommendation(id: str):
     raise HTTPException(status_code=404, detail="No recommendation found")
     return recommendation
     raise HTTPException(status_code=404, detagitil="No recommendation found")
+
+
 
 
 class DislikeEntry(BaseModel):
