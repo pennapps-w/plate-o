@@ -6,32 +6,37 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [likes, setLikes] = useState("");
-  const [dislikes, setDislikes] = useState("");
-  const [never, setNever] = useState("");
+  const [income, setIncome] = useState(0.0);
+  const [bills, setBills] = useState(0.0);
+  const [expenses, setExpenses] = useState(0.0);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("handling submit!!!");
     try {
       const response = await fetch(
-        "https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d",
+        "https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d/bank",
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
           },
           body: JSON.stringify({
-            likes,
-            dislikes,
-            never,
+            income: income,
+            bills: bills,
+            expenses: expenses,
           }),
+          credentials: "include",
         }
       );
 
+      console.log("got a responsE!");
+
       if (response.ok) {
-        const updatedUser = await response.json();
-        console.log("User updated successfully:", updatedUser);
+        // const updatedUser = await response.json();
+        // console.log("User updated successfully:", updatedUser);
         router.push("/start");
       } else {
         console.error("Failed to update user preferences");
@@ -52,30 +57,35 @@ export default function Home() {
             Financial information
           </h2>
           <h3 className="text-xl font-bold mb-4 text-orange-600">
-            Bank information
+            Monthly income
           </h3>
-          <Textarea
-            placeholder="japanese food, sushi, noodles"
-            className="mb-4"
-            value={likes}
-            onChange={(e) => setLikes(e.target.value)}
-          />
+          <input
+            value={income}
+            onChange={(e) => setIncome(parseFloat(e.target.value))}
+            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow mb-5"
+          ></input>
 
-          <h3 className="text-xl font-bold mb-4 text-orange-600">Name</h3>
-          <Textarea
-            placeholder="cold subways, nuts"
-            className="mb-4"
-            value={dislikes}
-            onChange={(e) => setDislikes(e.target.value)}
-          />
+          <h3 className="text-xl font-bold mb-4 text-orange-600">
+            Monthly bills
+          </h3>
+          <input
+            value={bills}
+            onChange={(e) => setBills(parseFloat(e.target.value))}
+            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow mb-5"
+          ></input>
 
-          <h3 className="text-xl font-bold mb-4 text-orange-600">Address</h3>
-          <Textarea
-            placeholder="cilantro"
-            className="mb-4"
-            value={never}
-            onChange={(e) => setNever(e.target.value)}
-          />
+          <h3 className="text-xl font-bold mb-4 text-orange-600">Expenses</h3>
+          <input
+            value={expenses}
+            onChange={(e) => setExpenses(parseFloat(e.target.value))}
+            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow mb-5"
+          ></input>
+
+          <p className="text-right">
+            <Button className="bg-green-500 middle mb-5 mt-2 ">
+              Payment Authentication
+            </Button>
+          </p>
 
           <Button type="submit" className="w-full">
             Submit
