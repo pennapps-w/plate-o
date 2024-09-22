@@ -11,8 +11,8 @@ from bson import ObjectId
 from pymongo import ReturnDocument
 from recommender import Recommender
 import tracemalloc
+import requests
 import logging
-from createacct import add_expenses, add_income
 
 logger = logging.getLogger(__name__)
 
@@ -176,13 +176,24 @@ class Bank(BaseModel):
     bills: float = None 
     expenses: float = None
 
-@app.post("/users/{id}/bank")
+@app.put("/users/{id}/bank")
 async def update_bank(id: str, tmp: Bank = Body(...)):
-    tmp2 = tmp.model_dump()
-    add_expenses([tmp2["expenses"]])
-    add_income([tmp2["bills"]], [tmp2["income"]])
+    tmp2 = tmp.model_dump() 
+    # add_expenses([tmp2["expenses"]])
+    # add_income([tmp2["bills"]], [tmp2["income"]])
 
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    bal = tmp2["income"] - tmp2["bills"] - tmp2["expenses"]
+    numMeals = min(bal//20, 30)    
+
+
+    # update_result = await collection.find_one_and_update({"_id": ObjectId(id)}, {"$set": {"balance": bal, "meal_budget": (bal//(numMeals+1))}}, return_document=ReturnDocument.AFTER)
+    # if update_result is not None:
+        # return update_result 
+    # else:
+        # raise HTTPException(status_code=404, detail=f"User {id} not found")
+    # response = requests.put("https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d", json={"balance": bal, "meal_budget": (bal//numMeals)})
+
+
 
 
 @app.options("/dislike_because/{id}/bank")

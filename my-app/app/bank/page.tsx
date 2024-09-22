@@ -15,18 +15,21 @@ export default function Home() {
     e.preventDefault();
     console.log("handling submit!!!");
     try {
+      const bal = income - bills - expenses;
+      const numMeals = Math.min(bal / 20, 30);
+      const mealBudg = bal / (numMeals + 1);
       const response = await fetch(
-        "https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d/bank",
+        "https://blobotic-service1--8000.prod1.defang.dev/users/66ee6b3a7aa3130e68418c7d",
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
           },
           body: JSON.stringify({
-            income: income,
-            bills: bills,
-            expenses: expenses,
+            balance: bal,
+            meal_budget: mealBudg,
+            price: Math.min(Math.round(mealBudg / 17), 4),
           }),
           credentials: "include",
         }
