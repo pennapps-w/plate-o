@@ -79,7 +79,7 @@ export function FoodSwiper() {
   const handleReject = async () => {
     setIsLoading(true);
     try {
-      const reason = rejectReason === "other" ? otherReason : rejectReason;
+      const reason = otherReason;
       console.log("Reject reason:", reason);
       const tmpbody = JSON.stringify({
         id: "66ee6b3a7aa3130e68418c7d",
@@ -217,7 +217,7 @@ export function FoodSwiper() {
             <Heart className="w-8 h-8 text-white" />
           </button>
         </div>
-        <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
+        {/* <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -239,6 +239,41 @@ export function FoodSwiper() {
             <DialogFooter>
               <Button onClick={handleReject} disabled={!otherReason.trim()}>
                 Submit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog> */}
+
+        <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
+          <DialogContent className="bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-yellow-400 max-w-md w-[90%]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-orange-600">
+                Why didn't you like this restaurant?
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                Your feedback helps us improve our recommendations.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              <Input
+                id="otherReason"
+                value={otherReason}
+                onChange={(e) => setOtherReason(e.target.value)}
+                placeholder="Enter your reason here"
+                className="w-full p-2 border border-gray-300 rounded-md text-black"
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                onClick={handleReject}
+                disabled={!otherReason.trim() || isLoading}
+                className="bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                ) : (
+                  "Submit"
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
