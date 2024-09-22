@@ -40,7 +40,8 @@ def test_api():
 
         
     except HTTPError as he:
-        print(he.response.json())
+        print("HTTP ERRORRRRRRR")
+        print(he)
         raise
 
 test_api()
