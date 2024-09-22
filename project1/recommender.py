@@ -17,7 +17,6 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-
 class Recommender:
     def __init__(self, user_id):
         self.user_id = user_id
