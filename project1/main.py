@@ -274,18 +274,3 @@ async def dislike_because(stuff: dict):
     )
 
     return update_result
-
-    # if update_result.modified_count == 0:
-    #     raise HTTPException(status_code=400, detail="Failed to update user preferences")
-
-    # recommender = Recommender(id)
-    # result = await recommender.rejected_recommendation(reason)
-
-    # if result:
-    # return {
-    #     "message": "Recommendation rejected successfully",
-    #     "new_dislikes": current_dislikes,
-    #     "rejected_recommendations": rejected_recommendations,
-    # }
-    # return result
-    # raise HTTPException(status_code=404, detail="Failed to reject recommendation")

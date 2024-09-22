@@ -31,9 +31,10 @@ export function FoodSwiper() {
 
   const fetchRecommendation = async () => {
     setIsLoading(true);
+    console.log("CURRENTLY FETCHING RECOMMENDATION");
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/get_recommendation/66ee6b3a7aa3130e68418c7d"
+        "https://blobotic-service1--8000.prod1.defang.dev/get_recommendation/66ee6b3a7aa3130e68418c7d"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch recommendation");
@@ -41,7 +42,7 @@ export function FoodSwiper() {
       const data = await response.json();
       setCurrentRestaurant(data.recommendation);
       console.log(data.recommendation);
-      console.log("HIHIHIHIHIHIHI");
+      // console.log("HIHIHIHIHIHIHI");
       console.log(data);
     } catch (error) {
       console.error("Error fetching recommendation:", error);
@@ -63,17 +64,19 @@ export function FoodSwiper() {
         console.log("Swiping left");
         // Call rejected_recommendation
         const response = await fetch(
-          "http://127.0.0.1:8000/dislike_because/66ee6b3a7aa3130e68418c7d",
+          "https://blobotic-service1--8000.prod1.defang.dev/dislike_because/66ee6b3a7aa3130e68418c7d",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
             },
             body: JSON.stringify({
               id: "66ee6b3a7aa3130e68418c7d",
               reason: "i hate Restaurants, Sushi Bars, Japanese",
               restaurant_id: currentRestaurant?.id || "",
             }),
+            mode: "cors",
           }
         );
         if (!response.ok) {
