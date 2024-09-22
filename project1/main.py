@@ -10,6 +10,7 @@ from typing_extensions import Annotated
 from bson import ObjectId
 from pymongo import ReturnDocument
 from recommender import Recommender
+import asyncio
 
 app = FastAPI(title="Food API", summary="stores users preference data for restaurants")
 
@@ -204,7 +205,7 @@ async def get_recommendation(id: str):
     recommendation = await recommender.get_recommendation()
     if recommendation:
         return recommendation
-    raise HTTPException(status_code=404, detail="No recommendation found")
+    raise HTTPException(status_code=404, detagitil="No recommendation found")
 
 
 # @app.put(
