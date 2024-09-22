@@ -22,7 +22,7 @@ export function FoodSwiper() {
   const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(
     null
   );
-  const [direction, setDirection] = useState<"left" | "right" | null>(null);
+  // const [direction, setDirection] = useState<"left" | "right" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const x = useMotionValue(0);
@@ -56,7 +56,7 @@ export function FoodSwiper() {
   }, []);
 
   const handleSwipe = async (swipeDirection: "left" | "right") => {
-    setDirection(swipeDirection);
+    // setDirection(swipeDirection);
     if (swipeDirection === "left") {
       setIsLoading(true);
       try {
@@ -99,7 +99,21 @@ export function FoodSwiper() {
     }
   };
 
-  const handleDragEnd = (event: any, info: any) => {
+  // const handleDragEnd = (event: any, info: any) => {
+  //   const swipeThreshold = 100;
+  //   if (info.offset.x > swipeThreshold) {
+  //     handleSwipe("right");
+  //   } else if (info.offset.x < -swipeThreshold) {
+  //     handleSwipe("left");
+  //   }
+  // };
+  const handleDragEnd = (
+    event: React.MouseEvent<HTMLDivElement>,
+    info: {
+      offset: { x: number; y: number };
+      velocity: { x: number; y: number };
+    }
+  ) => {
     const swipeThreshold = 100;
     if (info.offset.x > swipeThreshold) {
       handleSwipe("right");
